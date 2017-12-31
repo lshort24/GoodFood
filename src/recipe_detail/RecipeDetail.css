@@ -1,0 +1,32 @@
+.recipe-detail-page {
+    margin: 0 auto;
+    width: 960px;
+    background-color: #e7f4ef;
+    padding: 10px;
+}
+
+.recipe-detail {
+    border: solid 1px #7c9c60;
+    border-radius: 5px;
+    background-color: #ffffff;
+    padding: 10px;
+}
+
+.recipe-detail-title {
+    color: #7c9c60;
+    font-weight: bold;
+    font-size: 28px;
+}
+
+.recipe-detail-label {
+    color: #7c9c60;
+    font-weight: bold;
+}
+
+.recipe-detail-section {
+    margin-top: 15px;
+}
+
+.recipe-detail-tags {
+    line-height: 40px;
+}

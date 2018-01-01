@@ -3,6 +3,7 @@ import $ from 'jquery';
 import { Chip } from 'material-ui';
 import './RecipeDetail.css';
 import { siteRoot, hostname, version } from '../env';
+import { formatBreaks, formatSteps } from '../util';
 
 class RecipeDetail extends Component {
    constructor() {
@@ -54,14 +55,12 @@ class RecipeDetail extends Component {
          : null;
 
       const ingredients = this.state.ingredients.length > 0
-         ? this.state.ingredients.split(/\r\n/).map((line, index) => {
-               return <span key={index}>{line}<br /></span>
-           })
+         ? <div dangerouslySetInnerHTML={{__html: formatBreaks(this.state.ingredients)}} />
          : null;
 
-      const directions = this.state.directions.split(/\r\n/).map((line, index) => {
-         return <p key={index}>{line}</p>
-      });
+      const directions = this.state.directions.length > 0
+         ? <div dangerouslySetInnerHTML={{__html: formatSteps(this.state.directions)}} />
+         : null;
 
       return (
          <div className="recipe-detail-page">
@@ -77,15 +76,11 @@ class RecipeDetail extends Component {
                </div>
                <div className="recipe-detail-section">
                   <div className="recipe-detail-label">Ingredients:</div>
-                  <div>
-                     {ingredients}
-                  </div>
+                  {ingredients}
                </div>
                <div className="recipe-detail-section">
                   <div className="recipe-detail-label">Directions:</div>
-                  <div>
-                     {directions}
-                  </div>
+                  {directions}
                </div>
             </div>
          </div>

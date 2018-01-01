@@ -25,7 +25,7 @@ class App extends Component {
             <div>
                <Route render={({history}) => (
                   <AppBar
-                     title="Good Food"
+                     title="Good Food!"
                      showMenuIconButton={false}
                      style={style.appBar}
                      onTitleClick={() => {history.push('/')}}

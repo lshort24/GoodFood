@@ -25,6 +25,7 @@ class RecipeList extends Component {
    }
 
    componentDidMount() {
+      document.title = 'Good Food';
       $.get(`http://${hostname}${siteRoot}services/recipe_list.php?v=${version}`, (response) => {
          this.setState({
             tagList: response.tags,
@@ -54,6 +55,10 @@ class RecipeList extends Component {
 
       return recipeList.map((recipe) => {
          if (filterByTags) {
+            if (!recipe.tags) {
+               return null;
+            }
+
             let match = false;
             this.state.tagFilter.forEach((filterTag) => {
                recipe.tags.forEach((recipeTag) => {
@@ -74,11 +79,12 @@ class RecipeList extends Component {
          }
 
          const detailUrl = `${siteRoot}detail/${recipe.id}`;
+         const photoBaseUrl = 'http://shortsrecipes.com/photos/';
 
          // Photo
          const photoLink = recipe.photo
             ? <Link to={detailUrl} alt={recipe.title}>
-               <img src={recipe.photo} className="recipe-list-item-photo" alt={recipe.title}/>
+               <img src={photoBaseUrl + recipe.photo} className="recipe-list-item-photo" alt={recipe.title}/>
               </Link>
             : <span>&nbsp;</span>;
          const photo = <div className="recipe-list-item-photo">{photoLink}</div>;

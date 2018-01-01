@@ -1,6 +1,7 @@
 <?php
 
 require_once './data_adapters/MockAdapter.php';
+require_once './data_adapters/DatabaseAdapter.php';
 require_once './json_response.php';
 
 if (empty($_REQUEST['id'])) {
@@ -9,7 +10,13 @@ if (empty($_REQUEST['id'])) {
 
 $id = intval($_REQUEST['id']);
 
-$adapter = new MockAdapter();
+if (preg_match('/localhost/', $_SERVER['HTTP_HOST'])) {
+    $adapter = new MockAdapter();
+}
+else {
+    $adapter = new DatabaseAdapter();
+}
+
 $recipe_detail = $adapter->get_recipe_detail($id);
 
 echo json_response($recipe_detail, 200);

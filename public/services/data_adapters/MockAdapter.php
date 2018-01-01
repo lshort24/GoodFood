@@ -3,11 +3,46 @@
 class MockAdapter {
     public function get_recipe_list() {
         $recipes = [];
-        $base_url = 'http://shortsrecipes.com';
         $recipes[] = [
             'id' => 1,
             'title' => 'BBQ Pork Sandwiches',
-            'photo' => "{$base_url}/photos/a74f1e5e-8a52-42a2-8928-c6f0762ea332.jpg",
+            'photo' => "a74f1e5e-8a52-42a2-8928-c6f0762ea332.jpg",
+            'description' => "This is Jessie's favorite",
+            'tags' => ['pork']
+        ];
+
+        $recipes[] = [
+            'id'=> 2,
+            'title' => 'Beanie Weenie Casserole',
+            'photo' => "fddd54f1-a542-4d06-a441-e74d0aba1ad8.jpg",
+            'description' => "This is one of Grandma Duff's recipes",
+            'tags' => ['beef', 'gluten free']
+        ];
+
+        $recipes[] = [
+            'id' => 3,
+            'title' => 'Best Sugar Cookie Recipe',
+            'photo' => "sugar_cookies.png",
+            'description' => "Jamie found this recipe and we made these for Christmas 2016",
+            'tags' => ['cookies', 'christmas']
+        ];
+
+        $recipes[] = [
+            'id' => 4,
+            'title' => 'Beef Stroganoff',
+            'photo' => null,
+            'description' => "This is one of Jessie's favorites!",
+            'tags' => []
+        ];
+        return $recipes;
+    }
+
+    public function get_recipe_detail($id) {
+
+        return [
+            'id' => $id,
+            'title' => 'BBQ Pork Sandwiches',
+            'photo' => "a74f1e5e-8a52-42a2-8928-c6f0762ea332.jpg",
             'description' => "This is Jessie's favorite",
             'tags' => ['pork'],
             'ingredients' => '3 - 4 lb Pork shoulder roast
@@ -29,43 +64,6 @@ Ladle 1/2 cup of the sauce out to a small bowl and let cool for 5 minutes. Add c
 Mix 1/2 cup sauce for every 1 cup of meat. 
 Serve meat on toasted and buttered hamburger buns. Good with cheese & pickles.'
         ];
-
-        $recipes[] = [
-            'id' => 2,
-            'title' => 'Beanie Weenie Casserole',
-            'photo' => "{$base_url}/photos/fddd54f1-a542-4d06-a441-e74d0aba1ad8.jpg",
-            'description' => "This is one of Grandma Duff's recipes",
-            'tags' => ['beef', 'gluten free']
-        ];
-
-        $recipes[] = [
-            'id' => 3,
-            'title' => 'Best Sugar Cookie Recipe',
-            'photo' => "{$base_url}/photos/sugar_cookies.png",
-            'description' => "Jamie found this recipe and we made these for Christmas 2016",
-            'tags' => ['cookies', 'Christmas']
-        ];
-
-        $recipes[] = [
-            'id' => 4,
-            'title' => 'Beef Stroganoff',
-            'photo' => null,
-            'description' => "This is one of Jessie's favorites!",
-            'tags' => []
-        ];
-        return $recipes;
-    }
-
-    public function get_recipe_detail($id) {
-        $recipes = $this->get_recipe_list();
-
-        foreach($recipes as $recipe) {
-            if ($recipe['id'] == $id) {
-                return $recipe;
-            }
-        }
-
-        return null;
     }
 
     public function get_tags() {

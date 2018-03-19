@@ -37,7 +37,7 @@ class Database
      */
     public function getConnection()
     {
-        $password = implode('', array('S','p','r','i','n','g','B','r','e','a','k','2','0','1','8'));
+        $password = '';
         $conn = new mysqli(self::SERVER_NAME, self::USERNAME, $password, self::DB_NAME, 3306);
         if ($conn->connect_errno) {
             throw new Exception("Failed to connect to MySQL: (" . $conn->connect_errno . ") " . $conn->connect_error);

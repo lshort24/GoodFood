@@ -12,7 +12,12 @@ try {
         $adapter = new DatabaseAdapter();
     }
 
-    $recipe_list = $adapter->get_recipe_list();
+    $keywords = '';
+    if (!empty($_REQUEST['keywords'])) {
+        $keywords = $_REQUEST['keywords'];
+    }
+    $recipe_list = $adapter->get_recipe_list($keywords);
+
     $tags = $adapter->get_tags();
     $payload = [
         'recipe_list' => $recipe_list,

@@ -1,9 +1,9 @@
 <?php
 class Database
 {
-    const SERVER_NAME = "localhost";
-    const USERNAME = "webuser";
-    const DB_NAME = "goodfood";
+    const SERVER_NAME = "goodfood2018.cbuugflsygpu.us-west-2.rds.amazonaws.com";
+    const USERNAME = "dbadmin";
+    const DB_NAME = "goodfood2018";
 
     private static $instance;
 
@@ -29,13 +29,18 @@ class Database
         return static::$instance;
     }
 
+    /**
+     * Get a database connection
+     *
+     * @return mysqli
+     * @throws Exception
+     */
     public function getConnection()
     {
-        $password = implode('', array('Z','P','y','2','C','f','E','y','S','w','7','b','U','r','D','A'));
-        $conn = new mysqli(self::SERVER_NAME, self::USERNAME, $password, self::DB_NAME);
-
-        if ($conn->connect_error) {
-            throw new Exception($conn->connect_error);
+        $password = implode('', array('S','p','r','i','n','g','B','r','e','a','k','2','0','1','8'));
+        $conn = new mysqli(self::SERVER_NAME, self::USERNAME, $password, self::DB_NAME, 3306);
+        if ($conn->connect_errno) {
+            throw new Exception("Failed to connect to MySQL: (" . $conn->connect_errno . ") " . $conn->connect_error);
         }
 
         return ($conn);

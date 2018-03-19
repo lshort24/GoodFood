@@ -2,14 +2,40 @@
 require_once 'Database.php';
 
 class DatabaseAdapter {
-    public function get_recipe_list() {
-        return $this->get_recipes();
+    /**
+     * Get the recipe summary
+     *
+     * @param   string  $keywords   (optional) a list of keywords to filter by
+     *
+     * @return  array       array of recipe summary info
+     * @throws  Exception
+     * @throws  HttpException
+     */
+    public function get_recipe_list($keywords) {
+        return $this->fetch_recipe_summary($keywords);
     }
 
-    public function get_recipe_detail($id) {
-        return $this->get_recipes($id, 'detail');
+
+    /**
+     * Get recipe detail
+     *
+     * @param   int     $recipe_id
+     *
+     * @return array
+     * @throws Exception
+     * @throws HttpException
+     */
+    public function get_recipe_detail($recipe_id) {
+        return $this->fetch_recipe_by_id($recipe_id);
     }
 
+    /**
+     * Get Tags
+     *
+     * @return array
+     * @throws Exception
+     * @throws HttpException
+     */
     public function get_tags() {
         $tags = [];
         try {
@@ -35,76 +61,191 @@ class DatabaseAdapter {
     }
 
 
-    private function get_recipes($id = 0, $mode='list') {
-        $recipes = [];
+    /**
+     * Fetch a recipe by id from the database
+     *
+     * @param   int   $recipe_id    database id of the recipe to fetch
+     *
+     * @return  array               array of recipe info for the recipe with the given id
+     * @throws  Exception
+     * @throws  HttpException
+     */
+    private function fetch_recipe_by_id($recipe_id) {
+        $recipe = [];
         try {
-            $conn = Database::getInstance()->getConnection();
+            $mysqli = Database::getInstance()->getConnection();
 
-            if ($mode == 'detail') {
-                $sql = "SELECT * FROM recipes WHERE recipe_id = {$id}";
-            }
-            else {
-                $sql = "SELECT recipe_id, title, description, photo FROM recipes ORDER BY title";
-            }
-
-            $results = $conn->query($sql);
-            if ($results->num_rows == 0) {
-                throw new HttpException("Not found", 404);
-            }
-
-            while ($row = $results->fetch_assoc()) {
-                $recipe = [
-                    'id' => $row['recipe_id'],
-                    'title' => $row['title'],
-                    'description' => $row['description'],
-                    'photo' => $row['photo'],
-                    'tags' => []
-                ];
-
-                if ($mode == 'detail') {
-                    $recipe['prep_time'] = $row['prep_time'];
-                    $recipe['ingredients'] = $row['ingredients'];
-                    $recipe['directions'] = $row['directions'];
-                }
-
-                $recipes[] = $recipe;
-            }
-
-            // Get the tags for each recipe
             $sql = <<< SQL
-              SELECT recipe_labels.recipe_id, labels.name AS tag_name FROM recipe_labels
-              JOIN labels ON labels.label_id = recipe_labels.label_id 
+                SELECT recipe_id, title, prep_time, description, photo, ingredients, directions
+                FROM recipes
+                WHERE recipe_id = ?
 SQL;
 
-            if ($mode == 'detail') {
-                $sql .= " WHERE recipe_labels.recipe_id = {$id}}";
+            $stmt = $mysqli->prepare($sql);
+            if ($stmt === false) {
+                throw new HttpException('Could not prepare statement.');
             }
 
-            $results = $conn->query($sql);
-            if ($results->num_rows > 0) {
-                $tags = [];
-                while ($row = $results->fetch_assoc()) {
-                    if (!array_key_exists($row['recipe_id'], $tags)) {
-                        $tags[$row['recipe_id']] = [];
-                    }
-                    $tags[$row['recipe_id']][] = strtolower($row['tag_name']);
+            $stmt->bind_param('i', $recipe_id);
+            $stmt->execute();
+            $stmt->bind_result($recipe_id, $title, $prep_time, $description, $photo, $ingredients, $directions);
+            $status = $stmt->fetch();
+            if ($status === false) {
+                throw new HttpException('Could not fetch results.');
+            }
+            if ($status === null) {
+                throw new HttpException('Recipe not found.');
+            }
+
+            $recipe = [
+                'id' => $recipe_id,
+                'title' => $title,
+                'prep_time' => $prep_time,
+                'description' => $description,
+                'photo' => $photo,
+                'ingredients' => $ingredients,
+                'directions' => $directions,
+                'tags' => $this->fetch_tags_by_recipe_id($recipe_id)
+            ];
+        }
+        finally {
+            if ($mysqli) {
+                $mysqli->close();
+            }
+        }
+
+        return $recipe;
+    }
+
+
+    /**
+     * Fetch recipe summary
+     *
+     * @param   string      $keywords   keywords to filter on
+     *
+     * @return  array                   array of recipe summary info
+     * @throws  Exception
+     * @throws  HttpException
+     */
+    private function fetch_recipe_summary($keywords = '') {
+        $summary = [];
+        try {
+            $mysqli = Database::getInstance()->getConnection();
+
+            $keyword_clause = '';
+            if (!empty($keywords)) {
+                $keyword_clause = "WHERE MATCH (title, description, ingredients, directions) AGAINST (? IN NATURAL LANGUAGE MODE)";
+            }
+
+            $sql = <<< SQL
+                SELECT recipes.recipe_id, title, description, photo, labels.name AS tag_name
+                FROM recipes
+                LEFT JOIN recipe_labels ON recipe_labels.recipe_id = recipes.recipe_id
+                LEFT JOIN labels ON labels.label_id = recipe_labels.label_id
+                {$keyword_clause}
+                ORDER BY title, recipes.recipe_id
+SQL;
+
+            $stmt = $mysqli->prepare($sql);
+            if ($stmt === false) {
+                throw new HttpException('Could not prepare statement.');
+            }
+
+            if (!empty($keywords)) {
+                $stmt->bind_param('s', $keywords);
+            }
+            $stmt->execute();
+            $stmt->bind_result($recipe_id, $title, $description, $photo, $tag_name);
+            $status = $stmt->fetch();
+            if ($status === false) {
+                throw new HttpException('Could not fetch results.');
+            }
+
+            $working_summary = [];
+            while ($status) {
+                if (!empty($working_summary) and $recipe_id != $working_summary['id']) {
+                    // We are changing recipes
+                    $summary[] = $working_summary;
+                    $working_summary = [];
                 }
 
-                foreach ($recipes as $key => $recipe) {
-                    $recipe['tags'] = $tags[$recipe['id']];
-                    $recipes[$key] = $recipe;
+                if (empty($working_summary)) {
+                    $working_summary = [
+                        'id' => $recipe_id,
+                        'title' => $title,
+                        'description' => $description,
+                        'photo' => $photo,
+                        'tags' => []
+                    ];
                 }
+
+                if (!empty($tag_name)) {
+                    $working_summary['tags'][] = strtolower($tag_name);
+                }
+
+                $status = $stmt->fetch();
+            }
+
+            if (!empty($working_summary)) {
+                $summary[] = $working_summary;
             }
         }
         finally {
-            if ($conn) {
-                $conn->close();
+            if ($mysqli) {
+                $mysqli->close();
             }
         }
 
-        if ($id != 0) {
-            return $recipes[0];
+        return $summary;
+    }
+
+
+
+    /**
+     * Fetch the tags assigned to the recipe with the given recipe id
+     *
+     * @param   int     $recipe_id  database id of the recipe to fetch
+     *
+     * @return  array   array of tag names for the given recipe id
+     * @throws  Exception
+     * @throws  HttpException
+     */
+    private function fetch_tags_by_recipe_id($recipe_id) {
+        $F = __CLASS__ . __FUNCTION__;
+        $tags = [];
+
+        try {
+            $mysqli = Database::getInstance()->getConnection();
+            $sql = <<<SQL
+                SELECT labels.name AS tag_name 
+                FROM recipe_labels
+                JOIN labels ON labels.label_id = recipe_labels.label_id 
+                WHERE recipe_labels.recipe_id = ?
+SQL;
+
+            $stmt = $mysqli->prepare($sql);
+            if ($stmt === false) {
+                throw new HttpException("{$F} Could not prepare statement.");
+            }
+
+            $stmt->bind_param('i', $recipe_id);
+            $stmt->execute();
+            $stmt->bind_result($tag_name);
+            $status = $stmt->fetch();
+            if ($status === false) {
+                throw new HttpException('Could not fetch results.');
+            }
+
+            if ($status !== null) {
+                $tags[] = $tag_name;
+            }
         }
-        return $recipes;
+        finally {
+            if ($mysqli) {
+                $mysqli->close();
+            }
+        }
+
+        return $tags;
     }
 }

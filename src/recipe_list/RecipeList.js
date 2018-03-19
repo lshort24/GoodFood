@@ -19,6 +19,7 @@ class RecipeList extends Component {
       super();
       this.state = {
          tagFilter: [],
+         keywords: '',
          tagList: [],
          recipeList : []
       }
@@ -26,29 +27,9 @@ class RecipeList extends Component {
 
    componentDidMount() {
       document.title = 'Good Food';
-      $.get(`http://${hostname}${siteRoot}services/recipe_list.php?v=${version}`, (response) => {
-         this.setState({
-            tagList: response.tags,
-            recipeList: response.recipe_list,
-         })
-      }).fail(() => {
-         alert('Could not fetch the recipe list');
-      })
+      this.getRecipeList('');
    }
 
-   render() {
-      return (
-         <div className="recipe-list-page">
-            <SearchBar
-               tagList={this.state.tagList}
-               onUpdate={this.handleSearchBarUpdate}
-            />
-            <div>
-               {this.formatRecipeList(this.state.recipeList)}
-            </div>
-         </div>
-      );
-   }
 
    formatRecipeList(recipeList) {
       const filterByTags = this.state.tagFilter.length > 0;
@@ -115,11 +96,46 @@ class RecipeList extends Component {
       });
    }
 
-   handleSearchBarUpdate = (tags) => {
+   handleTagUpdate = (tags) => {
       this.setState({
          tagFilter: tags
-      })
+      });
    };
+
+   handleKeywordUpdate = (keywords) => {
+      this.getRecipeList(keywords);
+   };
+
+   getRecipeList = (keywords)  => {
+      const keywordsParam = keywords ? `&keywords=${keywords}` : '';
+      const url = `http://${hostname}${siteRoot}services/recipe_list.php?v=${version}${keywordsParam}`;
+      $.get(url, (response) => {
+         this.setState({
+            tagList: response.tags,
+            keywords: keywords,
+            recipeList: response.recipe_list
+         })
+      }).fail(() => {
+         alert('Could not fetch the recipe list');
+      });
+   };
+
+   render() {
+      return (
+         <div className="recipe-list-page">
+            <SearchBar
+               availableTags={this.state.tagList}
+               selectedTags={this.state.tagFilter}
+               keywords={this.state.keywords}
+               onUpdateTags={this.handleTagUpdate}
+               onUpdateKeywords={this.handleKeywordUpdate}
+            />
+            <div>
+               {this.formatRecipeList(this.state.recipeList)}
+            </div>
+         </div>
+      );
+   }
 }
 
 export default RecipeList;

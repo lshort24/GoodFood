@@ -3,6 +3,10 @@
     src: local('Roboto'), url(./fonts/Roboto-Regular.ttf) format('truetype');
 }
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     padding: 0;

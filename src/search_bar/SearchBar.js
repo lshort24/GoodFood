@@ -1,90 +1,83 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { AutoComplete, Chip } from 'material-ui';
+import { Chip } from 'material-ui';
+import TagPicker from '../tag_picker/TagPicker';
+import SearchBox from '../search_box/SearchBox';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
-class SearchBar extends Component {
-   constructor() {
-      super();
-      this.state = {
-         searchText: '',
-         selectedTags: []
-      }
-   }
+const SearchBar = (props) => {
+   const handleAddTag = (tag) => {
+      const tags = [...props.selectedTags, tag];
+      props.onUpdateTags(tags);
+   };
 
-   render() {
-      const chipStyles = {
+   const handleDeleteTag = (tag) => {
+      const tags = props.selectedTags.filter(t => t !== tag);
+      props.onUpdateTags(tags);
+   };
+
+   const handleKeywordChange = (keywords) => {
+      props.onUpdateKeywords(keywords);
+   };
+
+
+   const render = () => {
+      const styles = {
          chip: {
-            margin: 4,
+            margin: '4px',
          },
-         wrapper: {
+         chipWrapper: {
             display: 'flex',
             flexWrap: 'wrap',
          },
+         filterControl: {
+            marginRight: '10px'
+         }
       };
 
-      const tagChips = this.state.selectedTags.length === 0
+      const tagChips = props.selectedTags.length === 0
          ? null
-         : this.state.selectedTags.map((tag) => {
+         : props.selectedTags.map((tag) => {
             return (
-               <Chip onRequestDelete={() => {
-                        this.deleteTag(tag)
-                     }}
-                     style={chipStyles.chip}
-                     key={tag.replace(' ', '')}
+               <Chip
+                  onRequestDelete={() => {
+                     handleDeleteTag(tag)
+                  }}
+                  style={styles.chip}
+                  key={tag.replace(' ', '')}
                >
                   {tag}
                </Chip>
             )
          });
 
-      return(
+      return <div>
          <div>
-            <div>
-               <AutoComplete
-                  searchText={this.state.searchText}
-                  floatingLabelText="Filter by tag"
-                  filter={AutoComplete.caseInsensitiveFilter}
-                  dataSource={this.props.tagList}
-                  onUpdateInput={this.handleUpdateInput}
-                  onNewRequest={this.handleNewRequest}
-               />
-            </div>
-            <div style={chipStyles.wrapper}>
-               {tagChips}
-            </div>
+            <TagPicker
+               availableTags={props.availableTags}
+               onAddTag={handleAddTag}
+               style={styles.filterControl}
+            />
+            <SearchBox
+               onChange={handleKeywordChange}
+               value={props.keywords}
+            />
          </div>
-      )
-   }
-
-   handleUpdateInput = (searchText) => {
-      this.setState({
-         searchText: searchText,
-      });
+         <div style={styles.chipWrapper}>
+            {tagChips}
+         </div>
+      </div>
    };
 
-   handleNewRequest = (tag) => {
-      const tags = [...this.state.selectedTags, tag];
-
-      this.setState({
-         searchText: '',
-         selectedTags: tags
-      });
-
-      this.props.onUpdate(tags);
-   };
-
-   deleteTag(tag) {
-      const tags = this.state.selectedTags.filter(t => t !== tag);
-      this.setState({
-         selectedTags: tags
-      });
-      this.props.onUpdate(tags);
-   }
-}
-
-SearchBar.propTypes = {
-   tagList: PropTypes.array,
-   onUpdate: PropTypes.func
+   return render();
 };
 
-export default SearchBar;
+SearchBar.propTypes = {
+   selectedTags: PropTypes.array,
+   availableTags: PropTypes.array,
+   keywords: PropTypes.string,
+   onUpdateTags: PropTypes.func,
+   onUpdateKeywords: PropTypes.func
+};
+
+export default muiThemeable() (SearchBar);

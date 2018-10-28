@@ -4,14 +4,26 @@ import { Chip } from 'material-ui';
 import './RecipeDetail.css';
 import { siteRoot, hostname, version } from '../env';
 import { formatBreaks, formatSteps } from '../util';
+import injectSheet from 'react-jss'
+
+const styles = {
+   photo: {
+      float: 'right',
+      width: 300,
+      marginLeft: 20,
+      marginBottom: 20,
+      borderRadius: 10
+   }
+};
 
 class RecipeDetail extends Component {
-   constructor() {
-      super();
+   constructor(props) {
+      super(props);
       this.state = {
          title: '',
          tags: [],
          description: '',
+         photo: '',
          ingredients: '',
          directions: ''
       }
@@ -20,13 +32,16 @@ class RecipeDetail extends Component {
    componentDidMount() {
       const id = this.props.match.params.number;
 
-      $.get(`http://${hostname}${siteRoot}services/recipe_detail.php?v=${version}&id=` + id, (response) => {
+      const url = `http://${hostname}${siteRoot}services/recipe_detail.php?v=${version}&id=${id}`;
+      console.log('url ', url);
+      $.get(url, (response) => {
          this.setState({
             title: response.title,
             tags: response.tags,
             description: response.description,
             ingredients: response.ingredients || '',
-            directions: response.directions || ''
+            directions: response.directions || '',
+            photo: response.photo || ''
          })
       }).fail(() => {
          alert('Could not fetch the recipe list');
@@ -54,6 +69,11 @@ class RecipeDetail extends Component {
            })
          : null;
 
+      const photoBaseUrl = 'http://shortsrecipes.com/photos/';
+      const photo = this.state.photo.length > 0
+         ? <img src={`${photoBaseUrl}/${this.state.photo}`} alt="" className={this.props.classes.photo}/>
+         : null;
+
       const ingredients = this.state.ingredients.length > 0
          ? <div dangerouslySetInnerHTML={{__html: formatBreaks(this.state.ingredients)}} />
          : null;
@@ -72,6 +92,7 @@ class RecipeDetail extends Component {
                   <div className="recipe-detail-label">Tags:</div> {tagChips}
                </div>
                <div className="recipe-detail-section">
+                  {photo}
                   <span className="recipe-detail-label">Description:</span> {this.state.description}
                </div>
                <div className="recipe-detail-section">
@@ -88,4 +109,4 @@ class RecipeDetail extends Component {
    }
 }
 
-export default RecipeDetail;
+export default injectSheet(styles)(RecipeDetail);

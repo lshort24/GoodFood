@@ -1,9 +1,12 @@
 <?php
 class Database
 {
-    const SERVER_NAME = "goodfood2018.cbuugflsygpu.us-west-2.rds.amazonaws.com";
-    const USERNAME = "dbadmin";
-    const DB_NAME = "goodfood2018";
+    //const SERVER_NAME = "goodfood2018.cbuugflsygpu.us-west-2.rds.amazonaws.com";
+    //const USERNAME = "dbadmin";
+    //const DB_NAME = "goodfood2018";
+    const SERVER_NAME = "localhost";
+    const USERNAME = "webuser";
+    const DB_NAME = "goodfood";
 
     private static $instance;
 
@@ -37,7 +40,7 @@ class Database
      */
     public function getConnection()
     {
-        $password = '';
+
         $conn = new mysqli(self::SERVER_NAME, self::USERNAME, $password, self::DB_NAME, 3306);
         if ($conn->connect_errno) {
             throw new Exception("Failed to connect to MySQL: (" . $conn->connect_errno . ") " . $conn->connect_error);

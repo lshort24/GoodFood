@@ -133,6 +133,9 @@ class RecipeList extends Component {
             <div>
                {this.formatRecipeList(this.state.recipeList)}
             </div>
+            <div style={{textAlign: 'center'}}>
+               <Link to={`${siteRoot}admin`}>Admin</Link>
+            </div>
          </div>
       );
    }

@@ -61,6 +61,12 @@ class DatabaseAdapter {
     }
 
 
+    public function get_tags_by_recipe_id($id) {
+        return $this->fetch_tags_by_recipe_id($id);
+    }
+
+
+
     /**
      * Fetch a recipe by id from the database
      *
@@ -231,12 +237,7 @@ SQL;
             $stmt->bind_param('i', $recipe_id);
             $stmt->execute();
             $stmt->bind_result($tag_name);
-            $status = $stmt->fetch();
-            if ($status === false) {
-                throw new HttpException('Could not fetch results.');
-            }
-
-            if ($status !== null) {
+            while ($stmt->fetch()) {
                 $tags[] = $tag_name;
             }
         }

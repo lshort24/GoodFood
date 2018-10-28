@@ -1,0 +1,22 @@
+SSH to AWS instance
+cd C:\Users\lisa\Documents\PHP Projects\GoodFood
+ssh -i "GoodFood.pem" ec2-user@ec2-54-190-23-122.us-west-2.compute.amazonaws.com
+
+MySqL
+mysql -u root -p
+MySql_Whole30!
+use goodfood
+show tables
+sudo service mysqld restart
+
+Google API client id: 140719374282-cjq7dge3a304f3945j9ujc4bmidphd57.apps.googleusercontent.com
+Secret
+
+GET request to https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=YOUR_TOKEN_HERE
+
+
+Use this: https://www.npmjs.com/package/react-google-login
+
+BUILD AND RELEASE
+npm run build
+right click build/static and then Deployment > Upload to AWS

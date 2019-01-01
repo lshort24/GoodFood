@@ -20,3 +20,8 @@ Use this: https://www.npmjs.com/package/react-google-login
 BUILD AND RELEASE
 npm run build
 right click build/static and then Deployment > Upload to AWS
+do the same for index.html
+
+RUN LOCALLY
+go to E:\Documents\PHP Projects\GoodFood
+npm start

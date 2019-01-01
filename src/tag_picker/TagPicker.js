@@ -25,16 +25,20 @@ class TagPicker extends Component {
    };
 
    render() {
-      return <AutoComplete
-         ref='autocomplete'
-         dataSource={this.props.availableTags}
-         filter={AutoComplete.caseInsensitiveFilter}
-         floatingLabelText="Filter by tag"
-         onNewRequest={this.handleAddTag}
-         onUpdateInput={this.handleInput}
-         searchText={this.state.searchText}
-         style={this.props.style}
-      />
+      return (
+         <div>
+            <AutoComplete
+               ref='autocomplete'
+               dataSource={this.props.availableTags}
+               filter={AutoComplete.caseInsensitiveFilter}
+               floatingLabelText="Filter by tag"
+               onNewRequest={this.handleAddTag}
+               onUpdateInput={this.handleInput}
+               searchText={this.state.searchText}
+               style={this.props.style}
+            />
+         </div>
+      );
    }
 }
 

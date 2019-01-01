@@ -52,7 +52,7 @@ const SearchBar = (props) => {
          });
 
       return <div>
-         <div>
+         <div style={{display: "flex", justifyContent: "space-between"}}>
             <TagPicker
                availableTags={props.availableTags}
                onAddTag={handleAddTag}

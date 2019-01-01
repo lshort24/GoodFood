@@ -1,25 +1,30 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { TextField, RaisedButton } from "material-ui";
-import FontIcon from 'material-ui/FontIcon';
+import { TextField } from "material-ui";
+import { Clear } from "material-ui-icons";
 import muiThemeable from "material-ui/styles/muiThemeable";
 
 class SearchBox extends Component {
    constructor(props) {
       super(props);
       this.state = {
-         value: this.props.value
+         value: this.props.value,
+         showClearIcon: false
       }
    }
 
    handleChange = (e, value) => {
       this.setState({
-         value: value
+         value: value,
+         showClearIcon: value.length > 0
       })
    };
 
-   handleSearchClick = () => {
-      this.props.onChange(this.state.value);
+   handleKeyPress = (ev) => {
+      if (ev.key === 'Enter') {
+         ev.preventDefault();
+         this.props.onChange(this.state.value);
+      }
    };
 
    handleClear = () => {
@@ -31,13 +36,9 @@ class SearchBox extends Component {
 
    render() {
       const styles = {
-         control: {
-            display: 'inline-block',
-         },
          clearIcon: {
             position: 'absolute',
             bottom: '7px',
-            right: 0,
             color: this.props.muiTheme.textField.hintColor
          },
          searchInputStyle: {
@@ -46,29 +47,22 @@ class SearchBox extends Component {
          searchControlWrapper: {
             position: 'relative',
             display: 'inline-block',
-            marginRight: '10px'
+            marginRight: '24px'
          },
       };
 
+      const clearIcon = this.state.showClearIcon && <Clear style={styles.clearIcon} onClick={this.handleClear} />;
       return <div style={styles.control}>
          <div style={styles.searchControlWrapper}>
             <TextField
-               floatingLabelText="Keywords"
+               floatingLabelText="Search by keywords"
                inputStyle={styles.inputStyle}
                onChange={this.handleChange}
+               onKeyPress={this.handleKeyPress}
                value={this.state.value}
             />
-            <FontIcon
-               className="material-icons"
-               onClick={this.handleClear}
-               style={styles.clearIcon}
-            >
-               clear
-            </FontIcon>
+            {clearIcon}
          </div>
-         <RaisedButton onClick={this.handleSearchClick}>
-            Search
-         </RaisedButton>
       </div>
    }
 }

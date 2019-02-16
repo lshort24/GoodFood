@@ -22,5 +22,10 @@ function json_response($payload = null, $code = 200)
     $payload['success'] = $code < 300; // success or not?
 
     // return the encoded json
-    return json_encode($payload);
+    $json = json_encode($payload);
+    if ($json === false) {
+        // This will happen if there are non UTF-8 characters in the ingredients, description or markdown.
+        var_dump($payload);
+    }
+    return $json;
 }

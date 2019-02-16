@@ -82,7 +82,7 @@ class DatabaseAdapter {
             $mysqli = Database::getInstance()->getConnection();
 
             $sql = <<< SQL
-                SELECT recipe_id, title, prep_time, description, photo, ingredients, directions
+                SELECT recipe_id, title, prep_time, description, photo, ingredients, directions, markdown_recipe
                 FROM recipes
                 WHERE recipe_id = ?
 SQL;
@@ -94,7 +94,7 @@ SQL;
 
             $stmt->bind_param('i', $recipe_id);
             $stmt->execute();
-            $stmt->bind_result($recipe_id, $title, $prep_time, $description, $photo, $ingredients, $directions);
+            $stmt->bind_result($recipe_id, $title, $prep_time, $description, $photo, $ingredients, $directions, $markdown);
             $status = $stmt->fetch();
             if ($status === false) {
                 throw new HttpException('Could not fetch results.');
@@ -111,6 +111,7 @@ SQL;
                 'photo' => $photo,
                 'ingredients' => $ingredients,
                 'directions' => $directions,
+                'markdown' => $markdown,
                 'tags' => $this->fetch_tags_by_recipe_id($recipe_id)
             ];
         }

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
 import { Chip } from 'material-ui';
+import { markdown } from 'markdown';
+
 import './RecipeDetail.css';
 import { siteRoot, hostname, version } from '../env';
 import { formatBreaks, formatSteps } from '../util';
@@ -25,7 +27,8 @@ class RecipeDetail extends Component {
          description: '',
          photo: '',
          ingredients: '',
-         directions: ''
+         directions: '',
+         markdown: ''
       }
    }
 
@@ -41,6 +44,7 @@ class RecipeDetail extends Component {
             description: response.description,
             ingredients: response.ingredients || '',
             directions: response.directions || '',
+            markdown: response.markdown || '',
             photo: response.photo || ''
          })
       }).fail(() => {
@@ -74,14 +78,37 @@ class RecipeDetail extends Component {
          ? <img src={`${photoBaseUrl}/${this.state.photo}`} alt="" className={this.props.classes.photo}/>
          : null;
 
-      const ingredients = this.state.ingredients.length > 0
+      let ingredients = this.state.ingredients.length > 0
          ? <div dangerouslySetInnerHTML={{__html: formatBreaks(this.state.ingredients)}} />
          : null;
 
-      const directions = this.state.directions.length > 0
+      let directions = this.state.directions.length > 0
          ? <div dangerouslySetInnerHTML={{__html: formatSteps(this.state.directions)}} />
          : null;
 
+      let content = null;
+      if (this.state.markdown.length > 0) {
+         content = (
+            <div className="recipe-detail-section">
+               <div className="recipe-detail-label">Directions:</div>
+               <div dangerouslySetInnerHTML={{__html: markdown.toHTML(this.state.markdown)}} className="markdown"/>
+            </div>
+         );
+      }
+      else {
+         content = (
+            <div>
+               <div className="recipe-detail-section">
+                  <div className="recipe-detail-label">Ingredients:</div>
+                  {ingredients}
+               </div>
+               <div className="recipe-detail-section">
+                  <div className="recipe-detail-label">Directions:</div>
+                  {directions}
+                </div>
+            </div>
+         );
+      }
       return (
          <div className="recipe-detail-page">
             <div className="recipe-detail">
@@ -95,14 +122,7 @@ class RecipeDetail extends Component {
                   {photo}
                   <span className="recipe-detail-label">Description:</span> {this.state.description}
                </div>
-               <div className="recipe-detail-section">
-                  <div className="recipe-detail-label">Ingredients:</div>
-                  {ingredients}
-               </div>
-               <div className="recipe-detail-section">
-                  <div className="recipe-detail-label">Directions:</div>
-                  {directions}
-               </div>
+               {content}
             </div>
          </div>
       )

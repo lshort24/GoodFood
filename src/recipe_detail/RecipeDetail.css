@@ -27,6 +27,11 @@
     margin-top: 15px;
 }
 
+.markdown h2,
+.markdown h3 {
+    color: #7c9c60;
+}
+
 .recipe-detail-tags {
     line-height: 40px;
 }

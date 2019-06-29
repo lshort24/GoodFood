@@ -4,39 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="theme-color" content="#000000">
-    <meta name="google-signin-client_id" content="140719374282-cjq7dge3a304f3945j9ujc4bmidphd57.apps.googleusercontent.com">
-    <!--
-      manifest.json provides metadata used when your web app is added to the
-      homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
-    -->
+
     <link rel="manifest" href="/manifest.json">
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-      <script type="text/javascript">
-          console.log('setup');
-          function gbia_init() {
-             console.log('called gbia_init');
-             gapi.load('auth2', function() {
-                console.log('gapi auth2 ready');
-                gapi.auth2.init({client_id: '140719374282-cjq7dge3a304f3945j9ujc4bmidphd57.apps.googleusercontent.com'}).then(function() {
-                   console.log('Auth2 init done');
-                   var googleAuth = gapi.auth2.getAuthInstance();
-                   if (googleAuth.isSignedIn.get()) {
-                      console.log('already signed in');
-                      var googleUser = googleAuth.currentUser.get();
-                      console.log('Google user ', googleUser);
-                   }
-                   else {
-                      console.log('needs to sign in');
-                   }
-                },
-                function() {
-                   console.log('something went wrong');
-                })
-             });
-          }
-      </script>
-    <script src="https://apis.google.com/js/platform.js?onload=gbia_init" async defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://apis.google.com/js/api.js"></script>
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.

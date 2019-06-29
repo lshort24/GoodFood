@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import $ from 'jquery';
 import SearchBar from '../search_bar/SearchBar';
 import { Link } from 'react-router-dom';
 import './RecipeList.css';
@@ -109,13 +108,17 @@ class RecipeList extends Component {
    getRecipeList = (keywords)  => {
       const keywordsParam = keywords ? `&keywords=${keywords}` : '';
       const url = `http://${hostname}${siteRoot}services/recipe_list.php?v=${version}${keywordsParam}`;
-      $.get(url, (response) => {
+
+      fetch(url).then(response => {
+         return response.json();
+      }).then(data => {
          this.setState({
-            tagList: response.tags,
+            tagList: data.tags,
             keywords: keywords,
-            recipeList: response.recipe_list
+            recipeList: data.recipe_list
          })
-      }).fail(() => {
+      }).catch(error => {
+         console.log("Error", error);
          alert('Could not fetch the recipe list');
       });
    };

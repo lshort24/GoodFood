@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import $ from 'jquery';
 import { Chip } from 'material-ui';
 import { markdown } from 'markdown';
 
@@ -37,19 +36,22 @@ class RecipeDetail extends Component {
 
       const url = `http://${hostname}${siteRoot}services/recipe_detail.php?v=${version}&id=${id}`;
       console.log('url ', url);
-      $.get(url, (response) => {
+      fetch(url).then(response => {
+         return response.json();
+      }).then(data => {
          this.setState({
-            title: response.title,
-            tags: response.tags,
-            description: response.description,
-            ingredients: response.ingredients || '',
-            directions: response.directions || '',
-            markdown: response.markdown || '',
-            photo: response.photo || ''
+            title: data.title,
+            tags: data.tags,
+            description: data.description,
+            ingredients: data.ingredients || '',
+            directions: data.directions || '',
+            markdown: data.markdown || '',
+            photo: data.photo || ''
          })
-      }).fail(() => {
+      }).catch(error => {
+         console.log("Error", error);
          alert('Could not fetch the recipe list');
-      })
+      });
    }
 
    render() {

@@ -36,6 +36,9 @@ function formatSteps(str) {
 function validateHtml(html) {
    const matches = /<(\w+)/g.exec(html);
 
+   if (!matches) {
+      return true;
+   }
    for (let i = 1; i < matches.length; i++) {
       switch (matches[i]) {
          case 'br':

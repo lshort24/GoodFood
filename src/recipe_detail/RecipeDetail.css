@@ -28,7 +28,8 @@
 }
 
 .markdown h2,
-.markdown h3 {
+.markdown h3,
+.markdown h4 {
     color: #7c9c60;
 }
 

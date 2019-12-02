@@ -34,7 +34,7 @@ class RecipeDetail extends Component {
    componentDidMount() {
       const id = this.props.match.params.number;
 
-      const url = `http://${hostname}${siteRoot}services/recipe_detail.php?v=${version}&id=${id}`;
+      const url = `https://${hostname}${siteRoot}services/recipe_detail.php?v=${version}&id=${id}`;
       console.log('url ', url);
       fetch(url).then(response => {
          return response.json();
@@ -75,7 +75,7 @@ class RecipeDetail extends Component {
            })
          : null;
 
-      const photoBaseUrl = 'http://shortsrecipes.com/photos/';
+      const photoBaseUrl = 'https://shortsrecipes.com/photos/';
       const photo = this.state.photo.length > 0
          ? <img src={`${photoBaseUrl}/${this.state.photo}`} alt="" className={this.props.classes.photo}/>
          : null;
@@ -92,7 +92,6 @@ class RecipeDetail extends Component {
       if (this.state.markdown.length > 0) {
          content = (
             <div className="recipe-detail-section">
-               <div className="recipe-detail-label">Directions:</div>
                <div dangerouslySetInnerHTML={{__html: markdown.toHTML(this.state.markdown)}} className="markdown"/>
             </div>
          );
@@ -122,7 +121,7 @@ class RecipeDetail extends Component {
                </div>
                <div className="recipe-detail-section">
                   {photo}
-                  <span className="recipe-detail-label">Description:</span> {this.state.description}
+                  {this.state.description}
                </div>
                {content}
             </div>

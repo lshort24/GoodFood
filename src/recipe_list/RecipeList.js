@@ -59,7 +59,7 @@ class RecipeList extends Component {
          }
 
          const detailUrl = `${siteRoot}detail/${recipe.id}`;
-         const photoBaseUrl = 'http://shortsrecipes.com/photos/';
+         const photoBaseUrl = 'https://shortsrecipes.com/photos/';
 
          // Photo
          const photoLink = recipe.photo
@@ -107,7 +107,7 @@ class RecipeList extends Component {
 
    getRecipeList = (keywords)  => {
       const keywordsParam = keywords ? `&keywords=${keywords}` : '';
-      const url = `http://${hostname}${siteRoot}services/recipe_list.php?v=${version}${keywordsParam}`;
+      const url = `https://${hostname}${siteRoot}services/recipe_list.php?v=${version}${keywordsParam}`;
 
       fetch(url).then(response => {
          return response.json();

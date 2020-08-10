@@ -59,7 +59,7 @@ class RecipeList extends Component {
          }
 
          const detailUrl = `${siteRoot}detail/${recipe.id}`;
-         const photoBaseUrl = 'https://shortsrecipes.com/photos/';
+         const photoBaseUrl = '/photos/';
 
          // Photo
          const photoLink = recipe.photo

@@ -75,7 +75,7 @@ class RecipeDetail extends Component {
            })
          : null;
 
-      const photoBaseUrl = 'https://shortsrecipes.com/photos/';
+      const photoBaseUrl = '/photos/';
       const photo = this.state.photo.length > 0
          ? <img src={`${photoBaseUrl}/${this.state.photo}`} alt="" className={this.props.classes.photo}/>
          : null;
@@ -88,7 +88,7 @@ class RecipeDetail extends Component {
          ? <div dangerouslySetInnerHTML={{__html: formatSteps(this.state.directions)}} />
          : null;
 
-      let content = null;
+      let content;
       if (this.state.markdown.length > 0) {
          content = (
             <div className="recipe-detail-section">

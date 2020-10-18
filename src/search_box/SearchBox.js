@@ -1,70 +1,68 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { TextField } from "material-ui";
-import { Clear } from "material-ui-icons";
-import muiThemeable from "material-ui/styles/muiThemeable";
+import { TextField, InputAdornment } from "@material-ui/core";
+import { Search } from "@material-ui/icons";
+import { withStyles } from "@material-ui/styles";
 
-class SearchBox extends Component {
-   constructor(props) {
-      super(props);
-      this.state = {
-         value: this.props.value,
-         showClearIcon: false
-      }
-   }
+const styles = {
+   clearIcon: {
+      position: 'absolute',
+      bottom: '7px'
+   },
+   searchInputStyle: {
+      paddingRight: '24px'
+   },
+   searchControlWrapper: {
+      position: 'relative',
+      display: 'inline-block',
+      marginRight: '24px'
+   },
+};
 
-   handleChange = (e, value) => {
-      this.setState({
-         value: value,
-         showClearIcon: value.length > 0
-      })
+const SearchBox = (props) => {
+   const [value, setValue] = React.useState('');
+
+   const handleChange = (event) => {
+      const value = event.target.value;
+      setValue(value);
    };
 
-   handleKeyPress = (ev) => {
+   const handleKeyPress = (ev) => {
       if (ev.key === 'Enter') {
          ev.preventDefault();
-         this.props.onChange(this.state.value);
+         props.onChange(value);
       }
    };
 
-   handleClear = () => {
-      this.setState({
-         value: ''
-      });
-      this.props.onChange('');
+   /*
+   const handleClear = () => {
+      setValue('');
+      props.onChange('');
    };
-
-   render() {
-      const styles = {
-         clearIcon: {
-            position: 'absolute',
-            bottom: '7px',
-            color: this.props.muiTheme.textField.hintColor
-         },
-         searchInputStyle: {
-            paddingRight: '24px'
-         },
-         searchControlWrapper: {
-            position: 'relative',
-            display: 'inline-block',
-            marginRight: '24px'
-         },
-      };
-
-      const clearIcon = this.state.showClearIcon && <Clear style={styles.clearIcon} onClick={this.handleClear} />;
-      return <div style={styles.control}>
+*/
+   //const clearIcon = this.state.showClearIcon && <Clear style={styles.clearIcon} onClick={this.handleClear} />;
+   return (
+      <div style={styles.control}>
          <div style={styles.searchControlWrapper}>
             <TextField
-               floatingLabelText="Search by keywords"
-               inputStyle={styles.inputStyle}
-               onChange={this.handleChange}
-               onKeyPress={this.handleKeyPress}
-               value={this.state.value}
+                aria-label="Search"
+                placeholder="Search"
+                variant="outlined"
+                onChange={handleChange}
+                onKeyPress={handleKeyPress}
+                value={value}
+                InputProps={{
+                   startAdornment: (
+                       <InputAdornment position="start">
+                          <Search />
+                       </InputAdornment>
+                   ),
+                }}
             />
-            {clearIcon}
+            {/*clearIcon*/}
          </div>
       </div>
-   }
+   )
 }
 
 SearchBox.propTypes = {
@@ -73,4 +71,4 @@ SearchBox.propTypes = {
    style: PropTypes.object
 };
 
-export default muiThemeable() (SearchBox);
+export default withStyles(styles) (SearchBox);

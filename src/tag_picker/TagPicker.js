@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {AutoComplete} from "material-ui";
+import { TextField } from "@material-ui/core";
+//import {Autocomplete} from "@material-ui/lab";
 
 class TagPicker extends Component {
    constructor(props) {
@@ -27,16 +28,18 @@ class TagPicker extends Component {
    render() {
       return (
          <div>
-            <AutoComplete
-               ref='autocomplete'
-               dataSource={this.props.availableTags}
-               filter={AutoComplete.caseInsensitiveFilter}
+            Tag Picker
+            {/*
+            <Autocomplete
+               //ref='autocomplete'
                floatingLabelText="Filter by tag"
                onNewRequest={this.handleAddTag}
                onUpdateInput={this.handleInput}
                searchText={this.state.searchText}
                style={this.props.style}
-            />
+               options={this.props.availableTags}
+               renderInput={(params) => <TextField {...params} label="Combo box" variant="outlined" />}/>
+               */}
          </div>
       );
    }

@@ -1,20 +1,32 @@
 import React, { Component } from 'react';
-import { Chip } from 'material-ui';
+import { Chip } from '@material-ui/core';
+import { withStyles } from '@material-ui/styles';
 import { markdown } from 'markdown';
+import {withRouter} from 'react-router-dom';
 
 import './RecipeDetail.css';
 import { siteRoot, hostname, version } from '../env';
 import { formatBreaks, formatSteps } from '../util';
-import injectSheet from 'react-jss'
 
 const styles = {
    photo: {
-      float: 'right',
+      //float: 'right',
       width: 300,
-      marginLeft: 20,
-      marginBottom: 20,
+      //marginLeft: 20,
+      //marginTop: 20,
+      //marginBottom: 20,
       borderRadius: 10
-   }
+   },
+   chip: {
+      marginLeft: 4,
+      height: 24
+   },
+   chipWrapper: {
+      display: 'flex',
+      marginTop: 15,
+      flexWrap: 'wrap',
+      lineHeight: '24px'
+   },
 };
 
 class RecipeDetail extends Component {
@@ -32,6 +44,7 @@ class RecipeDetail extends Component {
    }
 
    componentDidMount() {
+      console.log('props', this.props);
       const id = this.props.match.params.number;
 
       const url = `https://${hostname}${siteRoot}services/recipe_detail.php?v=${version}&id=${id}`;
@@ -55,22 +68,10 @@ class RecipeDetail extends Component {
    }
 
    render() {
-      const chipStyles = {
-         chip: {
-            margin: 4,
-         },
-         wrapper: {
-            display: 'flex',
-            flexWrap: 'wrap',
-         },
-      };
-
       const tagChips = this.state.tags.length >= 0
          ? this.state.tags.map((tag) => {
                return (
-                  <Chip style={chipStyles.chip} key={tag.replace(' ', '')} >
-                     {tag}
-                  </Chip>
+                  <Chip classes={{root: this.props.classes.chip}} key={tag.replace(' ', '')} label={tag}/>
                )
            })
          : null;
@@ -116,18 +117,25 @@ class RecipeDetail extends Component {
                <div className="recipe-detail-title">
                   {this.state.title}
                </div>
-               <div style={chipStyles.wrapper} className="recipe-detail-tags recipe-detail-section">
-                  <div className="recipe-detail-label">Tags:</div> {tagChips}
-               </div>
-               <div className="recipe-detail-section">
+               <div className={'media-hide-top-photo'}>
                   {photo}
-                  {this.state.description}
                </div>
-               {content}
+               <div>
+                  <div className={'media-float-photo'}>
+                     {photo}
+                  </div>
+                  <div className={this.props.classes.chipWrapper}>
+                     <div className="recipe-detail-label">Tags:</div> {tagChips}
+                  </div>
+                  <div style={{marginTop: 16}}>
+                     {this.state.description}
+                  </div>
+                  {content}
+               </div>
             </div>
          </div>
       )
    }
 }
 
-export default injectSheet(styles)(RecipeDetail);
+export default withRouter(withStyles(styles)(RecipeDetail));

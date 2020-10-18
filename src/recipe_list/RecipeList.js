@@ -14,8 +14,8 @@ import { siteRoot, hostname, version } from '../env';
  *
  */
 class RecipeList extends Component {
-   constructor() {
-      super();
+   constructor(props) {
+      super(props);
       this.state = {
          tagFilter: [],
          keywords: '',
@@ -126,14 +126,8 @@ class RecipeList extends Component {
    render() {
       return (
          <div className="recipe-list-page">
-            <SearchBar
-               availableTags={this.state.tagList}
-               selectedTags={this.state.tagFilter}
-               keywords={this.state.keywords}
-               onUpdateTags={this.handleTagUpdate}
-               onUpdateKeywords={this.handleKeywordUpdate}
-            />
-            <div>
+            <SearchBar onUpdateKeywords={this.handleKeywordUpdate} />
+            <div style={{marginTop: 4}}>
                {this.formatRecipeList(this.state.recipeList)}
             </div>
          </div>

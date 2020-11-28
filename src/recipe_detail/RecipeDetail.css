@@ -15,7 +15,7 @@
 .recipe-detail-title {
     color: #7c9c60;
     font-weight: bold;
-    font-size: 28px;
+    font-size: 2em;
 }
 
 .recipe-detail-label {
@@ -25,6 +25,12 @@
 
 .recipe-detail-section {
     margin-top: 15px;
+    font-size: 1.5em;
+    line-height: 1.1em;
+}
+
+.recipe-detail-section li {
+    margin-top:8px;
 }
 
 .markdown h2,

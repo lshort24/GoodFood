@@ -6,7 +6,7 @@ import {withStyles} from '@material-ui/styles';
 import Router from './router/Router';
 
 //import GoogleAuth from "./components/GoogleAuth";
-import { googleApiInit } from './auth/googleAuth';
+import { googleApiInit, signIn, authenticate } from './auth/googleAuth';
 
 import './App.css';
 
@@ -43,9 +43,22 @@ class App extends Component {
 
     componentDidMount() {
         googleApiInit().then(() => {
-            console.log('google API has been initialized')
+            console.log('google API has been initialized');
         }).catch(error => {
-            console.log("There was an error tring to initialize Google API", error);
+            console.log("There was an error trying to initialize Google API", error);
+        })
+    }
+
+    handleGoogleClick = () => {
+        signIn().then(() => {
+            console.log('Signed in to Google')
+            authenticate().then(response => {
+                console.log('Authenticated', response)
+            }).catch(error => {
+                console.log('Could not authenticate', error)
+            })
+        }).catch(error => {
+            console.log('Could not sign in to Google', error);
         })
     }
 
@@ -59,7 +72,7 @@ class App extends Component {
                     <Typography variant="h1" className={this.props.classes.title}>
                         Good Food!
                     </Typography>
-                    <button className={this.props.classes.loginButton}>
+                    <button className={this.props.classes.loginButton} onClick={this.handleGoogleClick}>
                         <img alt="sign in with Google" src="https://shortsrecipes.com/lifetime/images/btn_google_signin_dark_normal_web.png"/>
                     </button>
                 </div>

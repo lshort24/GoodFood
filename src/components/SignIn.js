@@ -53,7 +53,8 @@ function SignIn({
                     updateAuth(true, getProfileName())
                 }
                 else {
-                    console.log('Could not sign in', response.data.reason);
+                    console.log('Could not sign in.', response.data.reason);
+                    alert('Sorry, you are not authorized to be an admin on this website.');
                 }
             }).catch(error => {
                 console.log('Could not send testauth request', error);

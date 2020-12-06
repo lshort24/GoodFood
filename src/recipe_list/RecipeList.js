@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import SearchBar from '../search_bar/SearchBar';
 import './RecipeList.css';
-import { apiHostname, websiteHostname, websiteProtocol, version } from '../env';
+import { apiHostname, version } from '../env';
 
 /**
  * @typedef    {Object} recipe
@@ -57,15 +58,15 @@ class RecipeList extends Component {
             }
          }
 
-         //const detailUrl = `${siteRoot}detail/${recipe.id}`;
-         const detailUrl = `${websiteProtocol}://${websiteHostname}/detail/${recipe.id}`;
+         const detailLinkUrl = `/detail/${recipe.id}`;
+         //const detailUrl = `${websiteProtocol}://${websiteHostname}/detail/${recipe.id}`;
          const photoBaseUrl = '/photos/';
 
          // Photo
          const photoLink = recipe.photo
-            ? <a href={detailUrl}>
+            ? <Link to={detailLinkUrl}>
                <img src={photoBaseUrl + recipe.photo} className="recipe-list-item-photo" alt={recipe.title}/>
-              </a>
+              </Link>
             : <span>&nbsp;</span>;
          const photo = <div className="recipe-list-item-photo">{photoLink}</div>;
 
@@ -76,7 +77,7 @@ class RecipeList extends Component {
 
          const summary = <div className="recipe-list-item-summary">
             <div>
-               <a className="recipe-list-item-title" href={detailUrl}>{recipe.title}</a>
+               <Link className="recipe-list-item-title" to={detailLinkUrl}>{recipe.title}</Link>
             </div>
             <div>
                {recipe.description}

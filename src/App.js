@@ -1,17 +1,17 @@
-import React, {Component} from 'react';
-import {Typography} from '@material-ui/core';
-import {withStyles} from '@material-ui/styles';
-
-//import {Route} from 'react-router-dom';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Typography } from '@material-ui/core';
+import { withStyles } from '@material-ui/styles';
 import Router from './router/Router';
+import { googleApiInit, isSignedIn, getProfileName } from './auth/googleAuth';
 
-//import GoogleAuth from "./components/GoogleAuth";
-import { googleApiInit, signIn, getBearerToken } from './auth/googleAuth';
-
-// API
-import shortAPI from "./api/shortAPI";
+// Actions
+import { updateAuth } from './redux/actions/authActions';
 
 import './App.css';
+
+// Components
+import SignIn from './components/SignIn';
 
 const styles = {
     appBar: {
@@ -27,14 +27,6 @@ const styles = {
         marginLeft: 8,
         fontSize: 24,
         lineHeight: '52px',
-    },
-    loginButton: {
-        display: 'block',
-        backgroundColor: '#222222',
-        marginTop: 3,
-        marginRight: 3,
-        padding: 0,
-        border: 'none',
     }
 };
 
@@ -47,25 +39,14 @@ class App extends Component {
     componentDidMount() {
         googleApiInit().then(() => {
             console.log('google API has been initialized');
+            if (isSignedIn()) {
+                this.props.updateAuth(true, getProfileName());
+            }
+            else {
+                this.props.updateAuth(false);
+            }
         }).catch(error => {
             console.log("There was an error trying to initialize Google API", error);
-        })
-    }
-
-    handleGoogleClick = () => {
-        signIn().then(() => {
-            const token = getBearerToken();
-            const config = {
-                withCredentials: true,
-                headers: { Authorization: `Bearer ${token}` }
-            };
-            shortAPI.post('/goodfood/authtest/index.php', {}, config).then(response => {
-                console.log('testauth response', response);
-            }).catch(error => {
-                console.log('Could not send testauth request', error);
-            })
-        }).catch(error => {
-            console.log('Could not sign in to Google', error);
         })
     }
 
@@ -79,9 +60,7 @@ class App extends Component {
                     <Typography variant="h1" className={this.props.classes.title}>
                         Good Food!
                     </Typography>
-                    <button className={this.props.classes.loginButton} onClick={this.handleGoogleClick}>
-                        <img alt="sign in with Google" src="https://shortsrecipes.com/lifetime/images/btn_google_signin_dark_normal_web.png"/>
-                    </button>
+                    <SignIn />
                 </div>
                 <Router/>
             </React.Fragment>
@@ -89,4 +68,8 @@ class App extends Component {
     }
 }
 
-export default withStyles(styles)(App);
+const mapDispatchToProps = {
+    updateAuth
+}
+
+export default connect(null, mapDispatchToProps)(withStyles(styles)(App));

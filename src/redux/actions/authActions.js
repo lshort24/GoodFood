@@ -1,20 +1,24 @@
-import { SIGN_IN, SIGN_OUT } from "./types";
+const UPDATE_AUTH = 'update_auth';
 
-const signIn = (userId) => {
+/**
+ * Update the authentication information
+ *
+ * @param {boolean} isSignedIn
+ * @param {string} profileName
+ * @returns {{payload: {signedIn}, type: string}}
+ */
+const updateAuth = (isSignedIn, profileName = '') => {
    return {
-      type: SIGN_IN,
-      payload: userId
+      type: UPDATE_AUTH,
+      payload: {
+         isSignedIn,
+         profileName,
+      }
    }
-};
-
-const signOut = () => {
-   return {
-      type: SIGN_OUT
-   }
-};
+}
 
 export {
-   signIn,
-   signOut
+   UPDATE_AUTH,
+   updateAuth
 }
 

@@ -1,8 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 //import { Chip } from '@material-ui/core';
 //import TagPicker from '../tag_picker/TagPicker';
+
+// Components
 import SearchBox from '../search_box/SearchBox';
+import AddButton from '../components/AddButton';
+
 import { withStyles } from '@material-ui/styles';
 
 const styles = {
@@ -31,6 +36,9 @@ const SearchBar = (props) => {
       props.onUpdateTags(tags);
    };
    */
+   const {
+      isSignedIn
+   } = props;
 
    const handleKeywordChange = (keywords) => {
       props.onUpdateKeywords(keywords);
@@ -67,6 +75,7 @@ const SearchBar = (props) => {
                onChange={handleKeywordChange}
                value={props.keywords}
             />
+            {isSignedIn && <AddButton />}
          </div>
          {/*
          <div style={styles.chipWrapper}>
@@ -84,7 +93,16 @@ SearchBar.propTypes = {
    availableTags: PropTypes.array,
    keywords: PropTypes.string,
    onUpdateTags: PropTypes.func,
-   onUpdateKeywords: PropTypes.func
+   onUpdateKeywords: PropTypes.func,
+
+   // From State
+   isSignedIn: PropTypes.bool
 };
 
-export default withStyles(styles) (SearchBar);
+const mapStateToProps = (state) => {
+   return {
+      isSignedIn: state.auth.isSignedIn,
+   }
+};
+
+export default connect(mapStateToProps)(withStyles(styles) (SearchBar));

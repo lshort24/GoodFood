@@ -1,5 +1,4 @@
 import { googleClientId } from '../secrets';
-import shortAPI from "../api/shortAPI";
 
 /**
  * @typedef {Object} Auth2
@@ -38,47 +37,36 @@ const signIn = () => {
     return googleAuth.signIn();
 }
 
-const authenticate = () => {
-    return new Promise((resolve, reject) => {
-        const idToken = localStorage.getItem('idToken');
-        const idTokenExpiresAt = localStorage.getItem('idTokenExpiresAt');
-        if (idToken && idTokenExpiresAt) {
-            const now = new Date();
-            const expiresAt = new Date(parseInt(idTokenExpiresAt));
-            if (now < expiresAt) {
-                console.log(`Authenticated because the token has not expired yet. It will expire at ${expiresAt}`);
-                resolve({
-                    authenticated: true,
-                    idToken
-                });
-                return;
-            }
+const getBearerToken = () => {
+    const idToken = localStorage.getItem('idToken');
+    const idTokenExpiresAt = localStorage.getItem('idTokenExpiresAt');
+    if (idToken && idTokenExpiresAt) {
+        const now = new Date();
+        const expiresAt = new Date(parseInt(idTokenExpiresAt));
+        if (now < expiresAt) {
+            console.log(`Using current id token. It will expire at ${expiresAt}`);
+            return idToken;
         }
+    }
 
-        console.log('ID token has expired, fetching a new one.');
-        const googleAuth = window.gapi.auth2.getAuthInstance();
-        if (!googleAuth || googleAuth.isSignedIn.get() === false) {
-            reject(new Error('User is not signed in'));
-            return;
-        }
+    console.log('ID token has expired, fetching a new one.');
+    const googleAuth = window.gapi.auth2.getAuthInstance();
+    if (!googleAuth || googleAuth.isSignedIn.get() === false) {
+        throw new Error('User is not signed in');
+    }
 
-        const googleUser = googleAuth.currentUser.get();
-        const authResponse = googleUser.getAuthResponse();
+    const googleUser = googleAuth.currentUser.get();
+    const authResponse = googleUser.getAuthResponse();
 
-        // Validate the id_token
-        shortAPI.post('/authenticate.php', {idToken: authResponse.id_token}, {withCredentials: true}).then((response) => {
-            // Update cache
-            localStorage.setItem('idToken', authResponse.id_token);
-            localStorage.setItem('idTokenExpiresAt', authResponse.expires_at);
-            resolve({...response.data, idToken});
-        }).catch((error) => {
-            reject(error);
-        })
-    });
+    // Update cache
+    localStorage.setItem('idToken', authResponse.id_token);
+    localStorage.setItem('idTokenExpiresAt', authResponse.expires_at);
+
+    return authResponse.id_token;
 }
 
 export {
     googleApiInit,
     signIn,
-    authenticate
+    getBearerToken
 }

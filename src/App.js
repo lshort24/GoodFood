@@ -6,7 +6,10 @@ import {withStyles} from '@material-ui/styles';
 import Router from './router/Router';
 
 //import GoogleAuth from "./components/GoogleAuth";
-import { googleApiInit, signIn, authenticate } from './auth/googleAuth';
+import { googleApiInit, signIn, getBearerToken } from './auth/googleAuth';
+
+// API
+import shortAPI from "./api/shortAPI";
 
 import './App.css';
 
@@ -51,11 +54,15 @@ class App extends Component {
 
     handleGoogleClick = () => {
         signIn().then(() => {
-            console.log('Signed in to Google')
-            authenticate().then(response => {
-                console.log('Authenticated', response)
+            const token = getBearerToken();
+            const config = {
+                withCredentials: true,
+                headers: { Authorization: `Bearer ${token}` }
+            };
+            shortAPI.post('/goodfood/authtest/index.php', {}, config).then(response => {
+                console.log('testauth response', response);
             }).catch(error => {
-                console.log('Could not authenticate', error)
+                console.log('Could not send testauth request', error);
             })
         }).catch(error => {
             console.log('Could not sign in to Google', error);

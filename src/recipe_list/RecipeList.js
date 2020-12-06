@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import SearchBar from '../search_bar/SearchBar';
-import { Link } from 'react-router-dom';
 import './RecipeList.css';
-import { siteRoot, hostname, version } from '../env';
+import { apiHostname, websiteHostname, websiteProtocol, version } from '../env';
 
 /**
  * @typedef    {Object} recipe
@@ -58,14 +57,15 @@ class RecipeList extends Component {
             }
          }
 
-         const detailUrl = `${siteRoot}detail/${recipe.id}`;
+         //const detailUrl = `${siteRoot}detail/${recipe.id}`;
+         const detailUrl = `${websiteProtocol}://${websiteHostname}/detail/${recipe.id}`;
          const photoBaseUrl = '/photos/';
 
          // Photo
          const photoLink = recipe.photo
-            ? <Link to={detailUrl} alt={recipe.title}>
+            ? <a href={detailUrl}>
                <img src={photoBaseUrl + recipe.photo} className="recipe-list-item-photo" alt={recipe.title}/>
-              </Link>
+              </a>
             : <span>&nbsp;</span>;
          const photo = <div className="recipe-list-item-photo">{photoLink}</div>;
 
@@ -76,7 +76,7 @@ class RecipeList extends Component {
 
          const summary = <div className="recipe-list-item-summary">
             <div>
-               <Link className="recipe-list-item-title" to={detailUrl} alt={recipe.title}>{recipe.title}</Link>
+               <a className="recipe-list-item-title" href={detailUrl}>{recipe.title}</a>
             </div>
             <div>
                {recipe.description}
@@ -107,7 +107,7 @@ class RecipeList extends Component {
 
    getRecipeList = (keywords)  => {
       const keywordsParam = keywords ? `&keywords=${keywords}` : '';
-      const url = `https://${hostname}${siteRoot}services/recipe_list.php?v=${version}${keywordsParam}`;
+      const url = `https://${apiHostname}/services/recipe_list.php?v=${version}${keywordsParam}`;
 
       fetch(url).then(response => {
          return response.json();

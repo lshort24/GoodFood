@@ -9,9 +9,9 @@ class DatabaseAdapter {
      *
      * @return  array       array of recipe summary info
      * @throws  Exception
-     * @throws  HttpException
+     * @throws  Exception
      */
-    public function get_recipe_list($keywords) {
+    public function get_recipe_list(string $keywords) : array {
         return $this->fetch_recipe_summary($keywords);
     }
 
@@ -23,9 +23,9 @@ class DatabaseAdapter {
      *
      * @return array
      * @throws Exception
-     * @throws HttpException
+     * @throws Exception
      */
-    public function get_recipe_detail($recipe_id) {
+    public function get_recipe_detail(int $recipe_id) : array {
         return $this->fetch_recipe_by_id($recipe_id);
     }
 
@@ -34,9 +34,9 @@ class DatabaseAdapter {
      *
      * @return array
      * @throws Exception
-     * @throws HttpException
+     * @throws Exception
      */
-    public function get_tags() {
+    public function get_tags(): array {
         $tags = [];
         try {
             $conn = Database::getInstance()->getConnection();
@@ -44,7 +44,7 @@ class DatabaseAdapter {
             $sql = "SELECT * FROM labels";
             $results = $conn->query($sql);
             if ($results->num_rows == 0) {
-                throw new HttpException("Not found", 404);
+                throw new Exception("Not found", 404);
             }
 
             while ($row = $results->fetch_assoc()) {
@@ -60,8 +60,14 @@ class DatabaseAdapter {
         return $tags;
     }
 
-
-    public function get_tags_by_recipe_id($id) {
+    /**
+     * Get tags given a recipe id
+     *
+     * @param int $id
+     * @return array
+     * @throws Exception
+     */
+    public function get_tags_by_recipe_id(int $id) : array {
         return $this->fetch_tags_by_recipe_id($id);
     }
 
@@ -74,9 +80,9 @@ class DatabaseAdapter {
      *
      * @return  array               array of recipe info for the recipe with the given id
      * @throws  Exception
-     * @throws  HttpException
+     * @throws  Exception
      */
-    private function fetch_recipe_by_id($recipe_id) {
+    private function fetch_recipe_by_id(int $recipe_id) : array {
         $recipe = [];
         try {
             $mysqli = Database::getInstance()->getConnection();
@@ -89,7 +95,7 @@ SQL;
 
             $stmt = $mysqli->prepare($sql);
             if ($stmt === false) {
-                throw new HttpException('Could not prepare statement.');
+                throw new Exception('Could not prepare statement.');
             }
 
             $stmt->bind_param('i', $recipe_id);
@@ -97,10 +103,10 @@ SQL;
             $stmt->bind_result($recipe_id, $title, $prep_time, $description, $photo, $ingredients, $directions, $markdown);
             $status = $stmt->fetch();
             if ($status === false) {
-                throw new HttpException('Could not fetch results.');
+                throw new Exception('Could not fetch results.');
             }
             if ($status === null) {
-                throw new HttpException('Recipe not found.');
+                throw new Exception('Recipe not found.');
             }
 
             $recipe = [
@@ -132,40 +138,58 @@ SQL;
      *
      * @return  array                   array of recipe summary info
      * @throws  Exception
-     * @throws  HttpException
+     * @throws  Exception
      */
-    private function fetch_recipe_summary($keywords = '') {
+    private function fetch_recipe_summary(string $keywords = '') : array {
         $summary = [];
         try {
             $mysqli = Database::getInstance()->getConnection();
 
-            $keyword_clause = '';
+            $where = "";
+            $bind_types = "";
+            $bind_vars = [];
             if (!empty($keywords)) {
-                $keyword_clause = "WHERE MATCH (title, description, ingredients, directions) AGAINST (? IN NATURAL LANGUAGE MODE)";
+                $where_clauses = [];
+                $recipe_ids_for_tag_matches = $this->search_tags($keywords);
+                if (!empty($recipe_ids_for_tag_matches)) {
+                    $qMarks = str_repeat('?,', count($recipe_ids_for_tag_matches) - 1) . '?';
+                    $bind_types .= str_repeat('i', count($recipe_ids_for_tag_matches));
+                    $bind_vars = $recipe_ids_for_tag_matches;
+                    $where_clauses[] = "recipes.recipe_id IN ($qMarks)";
+                }
+                $where_clauses[] = "MATCH (title, description, ingredients, directions, markdown_recipe) AGAINST (? IN NATURAL LANGUAGE MODE)";
+                $bind_types .= 's';
+                $bind_vars[] = $keywords;
+
+                if (!empty($where_clauses)) {
+                    $where = 'WHERE ' . implode(' OR ', $where_clauses);
+                }
             }
 
-            $sql = <<< SQL
+            $sql = "
                 SELECT recipes.recipe_id, title, description, photo, labels.name AS tag_name
                 FROM recipes
                 LEFT JOIN recipe_labels ON recipe_labels.recipe_id = recipes.recipe_id
                 LEFT JOIN labels ON labels.label_id = recipe_labels.label_id
-                {$keyword_clause}
+                {$where}
                 ORDER BY title, recipes.recipe_id
-SQL;
+            ";
 
             $stmt = $mysqli->prepare($sql);
             if ($stmt === false) {
-                throw new HttpException('Could not prepare statement.');
+                $values = implode(',', $bind_vars);
+                throw new Exception('Could not prepare statement.' . $sql . "\nbind_types:" . $bind_types . "\nbind_vars: " . $values);
             }
 
-            if (!empty($keywords)) {
-                $stmt->bind_param('s', $keywords);
+            if (!empty($bind_vars)) {
+                $stmt->bind_param($bind_types, ...$bind_vars);
             }
             $stmt->execute();
             $stmt->bind_result($recipe_id, $title, $description, $photo, $tag_name);
             $status = $stmt->fetch();
             if ($status === false) {
-                throw new HttpException('Could not fetch results.');
+                $values = implode(',', $bind_vars);
+                throw new Exception("Could not fetch results. sql: {$sql} bind_types: {$bind_types} bind_vars: {$values}");
             }
 
             $working_summary = [];
@@ -207,6 +231,55 @@ SQL;
     }
 
 
+    /**
+     * Search tags for keywords
+     *
+     * @param string $keywords
+     * @return int[]
+     * @throws Exception
+     */
+    private function search_tags(string $keywords) : array {
+        if (empty($keywords)) {
+            return [];
+        }
+
+        $recipe_ids = [];
+        try {
+            $mysqli = Database::getInstance()->getConnection();
+
+            $sql = "
+                SELECT recipe_id FROM labels
+                JOIN recipe_labels ON recipe_labels.label_id = labels.label_id
+                WHERE MATCH (name) AGAINST (? IN NATURAL LANGUAGE MODE)
+            ";
+
+            $stmt = $mysqli->prepare($sql);
+            if ($stmt === false) {
+                throw new Exception('Could not prepare statement.');
+            }
+
+            $stmt->bind_param('s', $keywords);
+            $stmt->execute();
+            $stmt->bind_result($recipe_id);
+            $status = $stmt->fetch();
+            if ($status === false) {
+                throw new Exception('Could not fetch results.');
+            }
+
+            while ($status) {
+                $recipe_ids[] = $recipe_id;
+                $status = $stmt->fetch();
+            }
+        }
+        finally {
+            if ($mysqli) {
+                $mysqli->close();
+            }
+        }
+
+        return $recipe_ids;
+    }
+
 
     /**
      * Fetch the tags assigned to the recipe with the given recipe id
@@ -215,9 +288,9 @@ SQL;
      *
      * @return  array   array of tag names for the given recipe id
      * @throws  Exception
-     * @throws  HttpException
+     * @throws  Exception
      */
-    private function fetch_tags_by_recipe_id($recipe_id) {
+    private function fetch_tags_by_recipe_id(int $recipe_id) : array {
         $F = __CLASS__ . __FUNCTION__;
         $tags = [];
 
@@ -232,7 +305,7 @@ SQL;
 
             $stmt = $mysqli->prepare($sql);
             if ($stmt === false) {
-                throw new HttpException("{$F} Could not prepare statement.");
+                throw new Exception("{$F} Could not prepare statement.");
             }
 
             $stmt->bind_param('i', $recipe_id);
@@ -241,6 +314,9 @@ SQL;
             while ($stmt->fetch()) {
                 $tags[] = $tag_name;
             }
+        }
+        catch (Throwable $e) {
+            throw new Exception("");
         }
         finally {
             if ($mysqli) {

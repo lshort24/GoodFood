@@ -4,6 +4,7 @@
     padding: 60px 10px 10px 10px;
     max-width: 960px;
     min-width: 400px;
+    min-height: 500px;
 }
 
 .recipe-list-item {

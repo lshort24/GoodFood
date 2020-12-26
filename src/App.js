@@ -7,6 +7,7 @@ import { googleApiInit, isSignedIn, getProfileName } from './auth/googleAuth';
 
 // Actions
 import { updateAuth } from './redux/actions/authActions';
+import {fetchRecipeList, updateKeywords} from './redux/actions/recipesActions';
 
 import './App.css';
 
@@ -37,6 +38,7 @@ class App extends Component {
     }
 
     componentDidMount() {
+        document.title = 'Good Food';
         googleApiInit().then(() => {
             console.log('google API has been initialized');
             if (isSignedIn()) {
@@ -48,6 +50,10 @@ class App extends Component {
         }).catch(error => {
             console.log("There was an error trying to initialize Google API", error);
         })
+
+        const keywords = sessionStorage.getItem('keywords') || '';
+        this.props.updateKeywords(keywords);
+        this.props.fetchRecipeList(keywords);
     }
 
     render() {
@@ -68,8 +74,10 @@ class App extends Component {
     }
 }
 
-const mapDispatchToProps = {
-    updateAuth
-}
+const mapDispatchToProps = dispatch => ({
+    updateAuth: (isSignedIn, profileName) => dispatch(updateAuth(isSignedIn, profileName)),
+    updateKeywords: keywords => dispatch(updateKeywords(keywords)),
+    fetchRecipeList: keywords => dispatch(fetchRecipeList(keywords))
+});
 
 export default connect(null, mapDispatchToProps)(withStyles(styles)(App));

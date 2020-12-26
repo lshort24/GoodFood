@@ -44,11 +44,9 @@ class RecipeDetail extends Component {
    }
 
    componentDidMount() {
-      console.log('props', this.props);
       const id = this.props.match.params.number;
-
       const url = `https://${hostname}${siteRoot}services/recipe_detail.php?v=${version}&id=${id}`;
-      console.log('url ', url);
+
       fetch(url).then(response => {
          return response.json();
       }).then(data => {

@@ -1,4 +1,4 @@
-import React, {useState, useLayoutEffect} from 'react';
+import React, {useState} from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {OutlinedInput, Button, InputAdornment} from "@material-ui/core";
@@ -12,10 +12,6 @@ const SearchBox = ({
     onChange
 }) => {
     const [value, setValue] = useState(keywords);
-
-    useLayoutEffect(() => {
-        setValue(keywords);
-    }, [keywords]);
 
     const handleKeyPress = (ev) => {
         if (ev.key === 'Enter') {

@@ -5,13 +5,10 @@ const UPDATE_RECIPE_LIST = 'update_recipe_list';
 const UPDATE_KEYWORDS = 'update_keywords';
 
 // Actions
-const updateKeywords = (keywords) => {
-    sessionStorage.setItem('keywords', keywords);
-    return {
-        type: UPDATE_KEYWORDS,
-        keywords,
-    }
-}
+const updateKeywords = (keywords) => ({
+    type: UPDATE_KEYWORDS,
+    keywords,
+})
 
 const updateRecipeList = (recipes) => ({
     type: UPDATE_RECIPE_LIST,

@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import {OutlinedInput, Button, InputAdornment} from "@material-ui/core";
 import {Search, Close} from "@material-ui/icons";
 
-// Actions & thunks
-import {updateKeywords, fetchRecipeList} from '../redux/actions/recipesActions';
+// Actions & sagas
+import {updateKeywords, getRecipeSummaryRequest} from '../redux/actions/recipes';
 
 const SearchBox = ({
     keywords,
@@ -72,9 +72,9 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    onChange: keywords => {
+    onChange: (keywords) => {
         dispatch(updateKeywords(keywords));
-        dispatch(fetchRecipeList(keywords));
+        dispatch(getRecipeSummaryRequest(keywords));
     }
 })
 

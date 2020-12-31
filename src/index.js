@@ -1,20 +1,46 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom'
-import { Provider } from "react-redux";
-import { createStore, applyMiddleware, compose } from "redux";
+
+// Redux
+import {Provider} from "react-redux";
+import {createStore} from "redux";
 import thunk from 'redux-thunk';
-
-import App from './App';
 import reducers from "./redux/reducers";
+import rootSaga from './redux/sagas';
 
+// Middleware
+import {composeWithDevTools} from 'redux-devtools-extension';
+import {applyMiddleware, compose} from "redux";
+import createSagaMiddleware from 'redux-saga';
+
+// Style
 import './index.css';
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(
-    reducers,
-    composeEnhancers(applyMiddleware(thunk))
-);
+// Components
+import App from './App';
+import { BrowserRouter } from 'react-router-dom';
+
+// API
+import axios from 'axios';
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = 'https://shortsrecipes.com/api/goodfood';
+
+const sagaMiddleware = createSagaMiddleware();
+
+let middleWare;
+if (process.env.NODE_ENV === 'production') {
+    middleWare = compose(
+        applyMiddleware(sagaMiddleware, thunk)
+    )
+}
+else {
+    middleWare = composeWithDevTools(
+        applyMiddleware(sagaMiddleware, thunk)
+    )
+}
+
+const store = createStore(reducers, middleWare);
+sagaMiddleware.run(rootSaga);
 
 ReactDOM.render(
    <Provider store={store}>

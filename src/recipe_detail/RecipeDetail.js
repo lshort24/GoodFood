@@ -1,20 +1,16 @@
 import React, { Component } from 'react';
-import { Chip } from '@material-ui/core';
+import PropTypes from 'prop-types';
+//import { Chip } from '@material-ui/core';
 import { withStyles } from '@material-ui/styles';
 import { markdown } from 'markdown';
-import {withRouter} from 'react-router-dom';
 
 import './RecipeDetail.css';
-import { siteRoot, hostname, version } from '../env';
+//import { siteRoot, hostname, version } from '../env';
 import { formatBreaks, formatSteps } from '../util';
 
 const styles = {
    photo: {
-      //float: 'right',
       width: 300,
-      //marginLeft: 20,
-      //marginTop: 20,
-      //marginBottom: 20,
       borderRadius: 10
    },
    chip: {
@@ -43,6 +39,7 @@ class RecipeDetail extends Component {
       }
    }
 
+   /*
    componentDidMount() {
       const id = this.props.match.params.number;
       const url = `https://${hostname}${siteRoot}services/recipe_detail.php?v=${version}&id=${id}`;
@@ -64,8 +61,17 @@ class RecipeDetail extends Component {
          alert('Could not fetch the recipe list');
       });
    }
+*/
 
    render() {
+      if (this.props.recipes.length === 0) {
+         return null;
+      }
+      const id = this.props.match.params.number;
+      const recipe = this.props.recipes.find(recipe => recipe.recipe_id = id);
+
+      const tagChips = 'tags';
+      /*
       const tagChips = this.state.tags.length >= 0
          ? this.state.tags.map((tag) => {
                return (
@@ -73,25 +79,26 @@ class RecipeDetail extends Component {
                )
            })
          : null;
+      */
 
       const photoBaseUrl = '/photos/';
-      const photo = this.state.photo.length > 0
-         ? <img src={`${photoBaseUrl}/${this.state.photo}`} alt="" className={this.props.classes.photo}/>
+      const photo = recipe.photo.length > 0
+         ? <img src={`${photoBaseUrl}/${recipe.photo}`} alt="" className={this.props.classes.photo}/>
          : null;
 
-      let ingredients = this.state.ingredients.length > 0
-         ? <div dangerouslySetInnerHTML={{__html: formatBreaks(this.state.ingredients)}} />
+      let ingredients = recipe.ingredients.length > 0
+         ? <div dangerouslySetInnerHTML={{__html: formatBreaks(recipe.ingredients)}} />
          : null;
 
-      let directions = this.state.directions.length > 0
-         ? <div dangerouslySetInnerHTML={{__html: formatSteps(this.state.directions)}} />
+      let directions = recipe.directions.length > 0
+         ? <div dangerouslySetInnerHTML={{__html: formatSteps(recipe.directions)}} />
          : null;
 
       let content;
-      if (this.state.markdown.length > 0) {
+      if (recipe.markdown_recipe.length > 0) {
          content = (
             <div className="recipe-detail-section">
-               <div dangerouslySetInnerHTML={{__html: markdown.toHTML(this.state.markdown)}} className="markdown"/>
+               <div dangerouslySetInnerHTML={{__html: markdown.toHTML(recipe.markdown)}} className="markdown"/>
             </div>
          );
       }
@@ -113,7 +120,7 @@ class RecipeDetail extends Component {
          <div className="recipe-detail-page">
             <div className="recipe-detail">
                <div className="recipe-detail-title">
-                  {this.state.title}
+                  {recipe.title}
                </div>
                <div className={'media-hide-top-photo'}>
                   {photo}
@@ -126,7 +133,7 @@ class RecipeDetail extends Component {
                      <div className="recipe-detail-label">Tags:</div> {tagChips}
                   </div>
                   <div style={{marginTop: 16}}>
-                     {this.state.description}
+                     {recipe.description}
                   </div>
                   {content}
                </div>
@@ -136,4 +143,11 @@ class RecipeDetail extends Component {
    }
 }
 
-export default withRouter(withStyles(styles)(RecipeDetail));
+RecipeDetail.propTypes = {
+   id: PropTypes.number.isRequired,
+   title: PropTypes.string
+}
+
+RecipeDetail.defaultValues = {
+   title: ''
+}

@@ -1,4 +1,4 @@
-import React, {useLayoutEffect} from 'react';
+import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 
@@ -10,10 +10,10 @@ import {withRouter} from 'react-router-dom';
 import RecipeDetail2 from './RecipeDetail2';
 
 const RecipeDetailRoute = ({match, getRecipeRequest}) => {
-    const recipeId = parseInt(match.params.number);
-    useLayoutEffect(() => {
+    useEffect(() => {
+        const recipeId = parseInt(match.params.number);
         getRecipeRequest(recipeId);
-    });
+    }, [match, getRecipeRequest]);
 
 
     return <RecipeDetail2 />

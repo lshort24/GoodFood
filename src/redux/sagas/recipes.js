@@ -4,11 +4,10 @@ import * as api from '../../api/recipes';
 
 function* getRecipeSummary(action) {
     try {
-        const urlParams = {
+        const result = yield call(api.getRecipes, {
             keywords: action.payload.keywords,
             summary: true
-        }
-        const result = yield call(api.getRecipes, urlParams);
+        })
         yield put(actions.getRecipeSummarySuccess(result.data));
     }
     catch(e) {
@@ -21,7 +20,9 @@ function* watchGetRecipeSummaryRequest() {
 
 function* getRecipe(action) {
     try {
-        const result = yield call(api.getRecipes, {id: action.payload.id});
+        const result = yield call(api.getRecipes, {
+            id: action.payload.id
+        });
         yield put(actions.getRecipeSuccess(result.data));
     }
     catch(e) {

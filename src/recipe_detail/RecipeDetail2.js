@@ -60,20 +60,22 @@ const RecipeDetail2 = ({
     markdownRecipe,
     tags
 }) => {
+    const formatTagChips = () => {
+        if (!tags) {
+            return null;
+        }
+
+        return tags.split(',')
+            .map(tag => {
+                return (
+                    <Chip classes={{root: classes.chip}} key={tag.replace(' ', '')} label={tag.trim()}/>
+                )
+            })
+    }
+
     if (recipeId === 0) {
         return null;
     }
-
-    const tagChips = tags
-        .split(',')
-        .map(tag => {
-            return tag.trim();
-        })
-        .map(tag => {
-             return (
-                <Chip classes={{root: classes.chip}} key={tag.replace(' ', '')} label={tag}/>
-             )
-         })
 
     const photoBaseUrl = '/photos/';
     const photoImage = photo && photo.length > 0
@@ -124,7 +126,7 @@ const RecipeDetail2 = ({
                         {photoImage}
                     </div>
                     <div className={classes.chipWrapper}>
-                        <div className="recipe-detail-label">Tags:</div> {tagChips}
+                        <div className="recipe-detail-label">Tags:</div> {formatTagChips()}
                     </div>
                     <div style={{marginTop: 16}}>
                         {description}

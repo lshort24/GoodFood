@@ -1,0 +1,5 @@
+npm run start
+
+if you get a CORS error then you need to update your IP in the API secrets file
+
+npm update - run periodically

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {withStyles} from '@material-ui/styles';
 import {formatBreaks, formatSteps} from "../util";
-import {markdown} from "markdown";
+import * as DOMPurify from 'dompurify';
 
 // Components
 import { Chip } from '@material-ui/core';
@@ -83,18 +83,19 @@ const RecipeDetail2 = ({
         : null;
 
     let ingredientsHTML = ingredients && ingredients.length > 0
-        ? <div dangerouslySetInnerHTML={{__html: formatBreaks(ingredients)}} />
+        ? <div dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(formatBreaks(ingredients))}} />
         : null;
 
     let directionsHTML = directions && directions.length > 0
-        ? <div dangerouslySetInnerHTML={{__html: formatSteps(directions)}} />
+        ? <div dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(formatSteps(directions))}} />
         : null;
 
     let content;
     if (markdownRecipe.length > 0) {
+        const sanitized = DOMPurify.sanitize(markdownRecipe);
         content = (
             <div className={classes.section}>
-                <div dangerouslySetInnerHTML={{__html: markdown.toHTML(markdownRecipe)}} className="markdown"/>
+                <div dangerouslySetInnerHTML={{__html: marked.parse(sanitized)}}/>
             </div>
         );
     }

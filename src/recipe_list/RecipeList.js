@@ -29,6 +29,9 @@ const RecipeList = ({
     classes,
     items,
 }) => {
+    const envVersion = process.env.npm_package_version;
+    const version = '0.1.1';
+
     const formatRecipeList = () => {
     if (items.length === 0) {
         return (
@@ -89,6 +92,9 @@ const RecipeList = ({
          <SearchBar />
          <div className={classes.recipeList}>
             {formatRecipeList()}
+         </div>
+         <div>
+            version {version} ENV version {envVersion}
          </div>
       </div>
    );

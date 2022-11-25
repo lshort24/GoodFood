@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/styles';
 import Router from './router/Router';
-import { googleApiInit, isSignedIn, getProfileName } from './auth/googleAuth';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Actions
 import { updateAuth } from './redux/actions/authActions';
@@ -12,7 +12,7 @@ import {getRecipeSummaryRequest} from './redux/actions/recipes';
 import './App.css';
 
 // Components
-import SignIn from './components/SignIn';
+import GoogleIdentitySignIn from "./components/GoogleIdentitySignIn";
 
 const styles = {
     appBar: {
@@ -39,24 +39,12 @@ class App extends Component {
 
     componentDidMount() {
         document.title = 'Good Food';
-        googleApiInit().then(() => {
-            console.log('google API has been initialized');
-            if (isSignedIn()) {
-                this.props.updateAuth(true, getProfileName());
-            }
-            else {
-                this.props.updateAuth(false);
-            }
-        }).catch(error => {
-            console.log("There was an error trying to initialize Google API", error);
-        })
-
         this.props.getRecipeSummaryRequest(this.props.keywords);
     }
 
     render() {
         return (
-            <React.Fragment>
+            <GoogleOAuthProvider clientId="661327317122-1hskbdb40mj678isegkl2ottnr1h9etg.apps.googleusercontent.com">
                 <div
                     role={"banner"}
                     className={this.props.classes.appBar}
@@ -64,10 +52,10 @@ class App extends Component {
                     <Typography variant="h1" className={this.props.classes.title}>
                         Good Food!
                     </Typography>
-                    <SignIn />
+                    <GoogleIdentitySignIn />
                 </div>
                 <Router/>
-            </React.Fragment>
+            </GoogleOAuthProvider>
         );
     }
 }

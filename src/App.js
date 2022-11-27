@@ -4,6 +4,7 @@ import { Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/styles';
 import Router from './router/Router';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 
 // Actions
 import { updateAuth } from './redux/actions/authActions';
@@ -43,19 +44,25 @@ class App extends Component {
     }
 
     render() {
+        const client = new ApolloClient({
+            uri: 'https://shortsrecipes.com/api/graphql.php',
+            cache: new InMemoryCache(),
+        });
         return (
-            <GoogleOAuthProvider clientId="661327317122-1hskbdb40mj678isegkl2ottnr1h9etg.apps.googleusercontent.com">
-                <div
-                    role={"banner"}
-                    className={this.props.classes.appBar}
-                >
-                    <Typography variant="h1" className={this.props.classes.title}>
-                        Good Food!
-                    </Typography>
-                    <GoogleIdentitySignIn />
-                </div>
-                <Router/>
-            </GoogleOAuthProvider>
+            <ApolloProvider client={client}>
+                <GoogleOAuthProvider clientId="661327317122-1hskbdb40mj678isegkl2ottnr1h9etg.apps.googleusercontent.com">
+                    <div
+                        role={"banner"}
+                        className={this.props.classes.appBar}
+                    >
+                        <Typography variant="h1" className={this.props.classes.title}>
+                            Good Food!
+                        </Typography>
+                        <GoogleIdentitySignIn />
+                    </div>
+                    <Router/>
+                </GoogleOAuthProvider>
+            </ApolloProvider>
         );
     }
 }

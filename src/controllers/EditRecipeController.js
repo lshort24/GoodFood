@@ -5,6 +5,10 @@ import {useParams} from 'react-router-dom';
 import RecipeForm from '../components/RecipeForm';
 
 function EditRecipeController() {
+    const handleSave = recipe => {
+        console.log('saving recipe', recipe);
+    }
+
     const params = useParams();
     const variables = {
         id: params.id
@@ -30,6 +34,7 @@ function EditRecipeController() {
     return (
         <RecipeForm
             title={data.recipe.title}
+            onSave={handleSave}
         />
     )
 }

@@ -4,7 +4,7 @@ import React from 'react';
 import shortAPI from '../api/shortAPI';
 
 // Components
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, googleLogout } from '@react-oauth/google';
 import {Typography, Link} from '@mui/material';
 
 // Redux
@@ -14,6 +14,7 @@ import PropTypes from "prop-types";
 
 function GoogleIdentitySignIn ({isSignedIn, profileName, updateAuth,}) {
     const handleGoogleSignOutClick = () => {
+        googleLogout();
         updateAuth(false, '');
     }
 
@@ -48,6 +49,7 @@ function GoogleIdentitySignIn ({isSignedIn, profileName, updateAuth,}) {
                         alert(`${defaultMessage} ${response.data.failReason}`);
                     }
                 }).catch = (error) => {
+                    console.log('There was an error with Google login', error);
                     alert(defaultMessage);
                     updateAuth(false, '');
                 }

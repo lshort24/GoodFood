@@ -1,56 +1,57 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useQuery, useMutation, gql} from '@apollo/client';
 import {useParams} from 'react-router-dom';
 
 import RecipeForm from '../components/RecipeForm';
 import { debugToken} from '../secrets';
 
+const blankRecipe = {
+    id: 0,
+    title: ''
+}
+
 function EditRecipeController() {
-    const [calc, { data: saveData, loading: saveLoading, error: saveError }] = useMutation(CALC, {
+    const [recipe, setRecipe] = useState(blankRecipe);
+
+    const params = useParams();
+
+    const [update, { loading: saveLoading, error: saveError }] = useMutation(UPDATE, {
         context: {
             headers: {
                 Authorization: `Bearer ${debugToken}`,
             }
-        }
+        },
     });
 
     const handleSave = recipe => {
-        console.log('saving recipe', recipe);
-        calc({variables: {x:1, y:2}});
+        console.log(`saving recipe with id ${params.id} with title ${recipe.title}`, recipe);
+        update({variables: {id: params.id, title: recipe.title}})
+            .then((response) => {
+                // noinspection JSUnresolvedVariable
+                setRecipe(response.data.updateRecipe);
+            })
     }
 
-    const params = useParams();
     const variables = {
         id: params.id
     }
 
-    const {loading, error, data} = useQuery(GET_RECIPE_BY_ID, {variables})
-    if (loading || saveLoading) {
-        return (
-            <div style={{padding: '50px'}}>
-                Loading...
-            </div>
-        )
-    }
+    const {loading, error} = useQuery(GET_RECIPE_BY_ID, {
+        variables,
+        onCompleted: (data) => {
+            setRecipe(data.recipe);
+        },
+    })
 
-    if (error || saveError) {
-        return (
-            <div style={{padding: '50px'}}>
-                Oops! there was an error
-            </div>
-        )
-    }
-
-    const sum = saveData ? saveData.sum : 0;
+    console.log('render recipe form', recipe);
     return (
         <>
             <RecipeForm
-                title={data.recipe.title}
+                recipe={recipe}
+                loading={loading || saveLoading}
+                errorMessage={(error?.message || saveError?.message) ?? ''}
                 onSave={handleSave}
             />
-            <div>
-                Sum: {sum}
-            </div>
         </>
     )
 }
@@ -58,14 +59,18 @@ function EditRecipeController() {
 const GET_RECIPE_BY_ID = gql`
 query getRecipeById ($id: ID!) {
   recipe (id: $id) {
+    id
     title
   }
 }
 `
 
-const CALC = gql`
-mutation test($x: Int!, $y: Int!) {
-  sum(x:$x, y:$y)
+const UPDATE = gql`
+mutation updateRecipe ($id: ID!, $title: String) {
+  updateRecipe(input: {id:$id, title: $title}) {
+    id
+    title
+  }
 }
 `
 export default EditRecipeController;

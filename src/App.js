@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/styles';
 import Router from './router/Router';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { Link } from 'react-router-dom';
 
 // Actions
 import { updateAuth } from './redux/actions/authActions';
@@ -29,6 +30,13 @@ const styles = {
         marginLeft: 8,
         fontSize: 24,
         lineHeight: '52px',
+    },
+    titleLink: {
+        color: 'white',
+        "&:hover": {
+            color: 'white',
+            textDecoration: 'none',
+        }
     }
 };
 
@@ -55,9 +63,11 @@ class App extends Component {
                         role={"banner"}
                         className={this.props.classes.appBar}
                     >
-                        <Typography variant="h1" className={this.props.classes.title}>
-                            Good Food!
-                        </Typography>
+                        <Link className={this.props.classes.titleLink} to="/">
+                            <Typography variant="h1" className={this.props.classes.title}>
+                                Good Food!
+                            </Typography>
+                        </Link>
                         <GoogleIdentitySignIn />
                     </div>
                     <Router/>

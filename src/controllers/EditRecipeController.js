@@ -5,13 +5,8 @@ import {useParams} from 'react-router-dom';
 import RecipeForm from '../components/RecipeForm';
 import { debugToken} from '../secrets';
 
-const blankRecipe = {
-    id: 0,
-    title: ''
-}
-
 function EditRecipeController() {
-    const [recipe, setRecipe] = useState(blankRecipe);
+    const [recipe, setRecipe] = useState(null);
 
     const params = useParams();
 
@@ -28,8 +23,8 @@ function EditRecipeController() {
         update({variables: {id: params.id, title: recipe.title}})
             .then((response) => {
                 // noinspection JSUnresolvedVariable
-                setRecipe(response.data.updateRecipe);
-            })
+                console.log('Recipe after save.', response.data.updateRecipe);
+            });
     }
 
     const variables = {
@@ -39,11 +34,12 @@ function EditRecipeController() {
     const {loading, error} = useQuery(GET_RECIPE_BY_ID, {
         variables,
         onCompleted: (data) => {
+            console.log('Setting recipe after query.');
             setRecipe(data.recipe);
         },
     })
 
-    console.log('render recipe form', recipe);
+    console.log('loading flags', {loading, error, saveLoading, saveError, recipe})
     return (
         <>
             <RecipeForm

@@ -7,9 +7,13 @@ import * as DOMPurify from 'dompurify';
 
 // Components
 import { Chip } from '@material-ui/core';
+import { Link, useParams } from 'react-router-dom';
 
 // Style
 import './RecipeDetail.css';
+import Button from "@mui/material/Button";
+import {Edit} from '@mui/icons-material';
+
 const style = {
     root: {
         margin: '0 auto',
@@ -46,6 +50,10 @@ const style = {
         marginTop: 15,
         flexWrap: 'wrap',
         lineHeight: '24px'
+    },
+    titleWrapper: {
+        display: 'flex',
+        justifyContent: 'space-between',
     }
 }
 
@@ -60,6 +68,9 @@ const RecipeDetail2 = ({
     markdownRecipe,
     tags
 }) => {
+    const params = useParams();
+    console.log('params', params);
+
     const formatTagChips = () => {
         if (!tags) {
             return null;
@@ -116,8 +127,17 @@ const RecipeDetail2 = ({
     return (
         <div className={classes.root}>
             <div className={classes.detail}>
-                <div className={classes.title}>
-                    {title}
+                <div className={classes.titleWrapper}>
+                    <div className={classes.title}>
+                        {title}
+                    </div>
+                    <div>
+                        <Link to={`/edit/${params.number}`}>
+                            <Button variant="contained" startIcon={<Edit />}>
+                                Edit Recipe
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
                 <div className={'media-hide-top-photo'}>
                     {photoImage}

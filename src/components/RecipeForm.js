@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 
-import {Box, Button, Container, Paper, TextField, Typography, Alert} from '@mui/material';
+import {Box, Button, Container, Paper, TextField, Typography, Alert, CircularProgress} from '@mui/material';
 
 function renderErrorMessage(errorMessage) {
     if (errorMessage.length === 0) {
@@ -19,7 +19,7 @@ function renderLoadingMessage(loading) {
     if (loading) {
         return (
             <div>
-                Loading...
+                <CircularProgress />
             </div>
         )
     }
@@ -31,10 +31,14 @@ function RecipeForm ({recipe, loading, errorMessage, onSave}) {
     const [formData, setFormData] = useState(recipe);
 
     useEffect(() => {
-        setFormData(recipe);
+        if (recipe != null) {
+            console.log('setting formData because it is not null.')
+            setFormData(recipe);
+        }
     }, [recipe]);
 
     const handleFieldChange = event => {
+        console.log('setting formData because it changed.');
         setFormData({
             ...formData,
             [event.target.name]: event.target.value
@@ -45,14 +49,12 @@ function RecipeForm ({recipe, loading, errorMessage, onSave}) {
         onSave(formData);
     }
 
-    return (
-        <Container sx={{paddingTop: '72px'}}>
-            <Typography variant="h4">
-                Recipe Form
-            </Typography>
+    const renderForm = (formData) => {
+        if (formData === null) {
+            return null;
+        }
 
-            {renderLoadingMessage(loading)}
-            {renderErrorMessage(errorMessage)}
+        return (
             <Paper>
                 <Box p={2}>
                     <Box>
@@ -76,6 +78,18 @@ function RecipeForm ({recipe, loading, errorMessage, onSave}) {
                     </Box>
                 </Box>
             </Paper>
+        )
+    }
+
+    return (
+        <Container sx={{paddingTop: '72px'}}>
+            <Typography variant="h4">
+                Recipe Form
+            </Typography>
+
+            {renderLoadingMessage(loading)}
+            {renderErrorMessage(errorMessage)}
+            {renderForm(formData)}
         </Container>
     )
 }
@@ -90,9 +104,7 @@ RecipeForm.propTypes = {
 }
 
 RecipeForm.defaultValues = {
-    recipe: {
-        title: ''
-    },
+    recipe: null,
     loading: false,
     errorMessage: ''
 }

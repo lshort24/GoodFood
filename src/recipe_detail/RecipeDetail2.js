@@ -66,10 +66,10 @@ const RecipeDetail2 = ({
     ingredients,
     directions,
     markdownRecipe,
-    tags
+    tags,
+    isSignedIn
 }) => {
     const params = useParams();
-    console.log('params', params);
 
     const formatTagChips = () => {
         if (!tags) {
@@ -131,13 +131,15 @@ const RecipeDetail2 = ({
                     <div className={classes.title}>
                         {title}
                     </div>
-                    <div>
-                        <Link to={`/edit/${params.number}`}>
-                            <Button variant="contained" startIcon={<Edit />}>
-                                Edit Recipe
-                            </Button>
-                        </Link>
-                    </div>
+                    {
+                        isSignedIn && <div>
+                            <Link to={`/edit/${params.number}`}>
+                                <Button variant="contained" startIcon={<Edit />}>
+                                    Edit Recipe
+                                </Button>
+                            </Link>
+                        </div>
+                    }
                 </div>
                 <div className={'media-hide-top-photo'}>
                     {photoImage}
@@ -182,7 +184,8 @@ RecipeDetail2.defaultProps = {
 }
 
 const mapStateToProps = state => ({
-    ...state.recipes.recipe
+    ...state.recipes.recipe,
+    isSignedIn: state.auth.isSignedIn
 })
 
 export default connect(mapStateToProps)(withStyles(style)(RecipeDetail2));

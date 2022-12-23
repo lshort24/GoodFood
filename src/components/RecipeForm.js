@@ -57,13 +57,11 @@ function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSav
 
     useEffect(() => {
         if (recipe != null) {
-            console.log('setting formData because it is not null.', recipe);
             setFormData(recipe);
         }
     }, [recipe]);
 
     const handleFieldChange = useCallback((event) => {
-        console.log('setting formData because it changed.');
         setFormData({
             ...formData,
             [event.target.name]: event.target.value
@@ -79,7 +77,7 @@ function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSav
             <Typography variant="h4">
                 Recipe Form
             </Typography>
-
+            {loading && <CircularProgress />}
             {renderLoadingMessage(loading)}
             {renderForm(formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick)}
         </Container>

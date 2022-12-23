@@ -1,17 +1,20 @@
 import React, {useCallback} from 'react';
 import {useQuery, useMutation, gql} from '@apollo/client';
 import {useParams} from 'react-router-dom';
+import {useCookies} from 'react-cookie';
 
 import RecipeForm from '../components/RecipeForm';
-import { debugToken} from '../secrets';
 
 function EditRecipeController() {
     const params = useParams();
 
+    const [cookies] = useCookies(['accessToken']);
+
+    const accessToken = cookies['accessToken'];
     const [update, { loading: saveLoading, error: saveError }] = useMutation(UPDATE, {
         context: {
             headers: {
-                Authorization: `Bearer ${debugToken}`,
+                Authorization: `Bearer ${accessToken}`,
             }
         },
     });
@@ -30,8 +33,6 @@ function EditRecipeController() {
     }
 
     const {loading, error, data} = useQuery(GET_RECIPE_BY_ID, {variables})
-
-    console.log('loading flags', {loading, error, saveLoading, saveError, data})
     return (
         <RecipeForm
             recipe={data?.recipe}

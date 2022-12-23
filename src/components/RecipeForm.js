@@ -1,19 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import PropTypes from 'prop-types';
 
-import {Box, Button, Container, Paper, TextField, Typography, Alert, CircularProgress} from '@mui/material';
-
-function renderLoadingMessage(loading) {
-    if (loading) {
-        return (
-            <div>
-                <CircularProgress />
-            </div>
-        )
-    }
-
-    return null;
-}
+import {Button, Container, Paper, Stack, TextField, Typography, Alert, CircularProgress} from '@mui/material';
 
 function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick) {
     const errorMessage = loadErrorMessage?.length > 0 ? loadErrorMessage : saveErrorMessage;
@@ -22,9 +10,9 @@ function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, hand
             {errorMessage?.length > 0 && <Alert severity="error">
                 {errorMessage}
             </Alert>}
-            <Paper>
-                <Box p={2}>
-                    <Box>
+            <Paper sx={{padding: 2}}>
+                <Stack direction="column" spacing={2}>
+                    <Stack direction="row" justifyContent="flex-start">
                         <TextField
                             id="title"
                             name="title"
@@ -33,8 +21,8 @@ function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, hand
                             value={formData.title}
                             onChange={handleFieldChange}
                         />
-                    </Box>
-                    <Box sx={{display: 'flex', flexDirection: 'row-reverse'}}>
+                    </Stack>
+                    <Stack direction="row" justifyContent="flex-end">
                         <Button
                             variant="contained"
                             disabled={loading || loadErrorMessage?.length > 0}
@@ -42,8 +30,8 @@ function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, hand
                         >
                             Save
                         </Button>
-                    </Box>
-                </Box>
+                    </Stack>
+                </Stack>
             </Paper>
         </>
     )
@@ -74,11 +62,12 @@ function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSav
 
     return (
         <Container sx={{paddingTop: '72px'}}>
-            <Typography variant="h4">
-                Recipe Form
-            </Typography>
-            {loading && <CircularProgress />}
-            {renderLoadingMessage(loading)}
+            <Stack spacing={2} direction="row">
+                <Typography variant="h4">
+                    Recipe Form
+                </Typography>
+                {loading && <CircularProgress />}
+            </Stack>
             {renderForm(formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick)}
         </Container>
     )

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback} from 'react';
 import {useQuery, useMutation, gql} from '@apollo/client';
 import {useParams} from 'react-router-dom';
 
@@ -6,8 +6,6 @@ import RecipeForm from '../components/RecipeForm';
 import { debugToken} from '../secrets';
 
 function EditRecipeController() {
-    const [recipe, setRecipe] = useState(null);
-
     const params = useParams();
 
     const [update, { loading: saveLoading, error: saveError }] = useMutation(UPDATE, {
@@ -18,37 +16,30 @@ function EditRecipeController() {
         },
     });
 
-    const handleSave = recipe => {
+    const handleSave = useCallback((recipe) => {
         console.log(`saving recipe with id ${params.id} with title ${recipe.title}`, recipe);
         update({variables: {id: params.id, title: recipe.title}})
             .then((response) => {
                 // noinspection JSUnresolvedVariable
                 console.log('Recipe after save.', response.data.updateRecipe);
             });
-    }
+    }, [update, params]);
 
     const variables = {
         id: params.id
     }
 
-    const {loading, error} = useQuery(GET_RECIPE_BY_ID, {
-        variables,
-        onCompleted: (data) => {
-            console.log('Setting recipe after query.');
-            setRecipe(data.recipe);
-        },
-    })
+    const {loading, error, data} = useQuery(GET_RECIPE_BY_ID, {variables})
 
-    console.log('loading flags', {loading, error, saveLoading, saveError, recipe})
+    console.log('loading flags', {loading, error, saveLoading, saveError, data})
     return (
-        <>
-            <RecipeForm
-                recipe={recipe}
-                loading={loading || saveLoading}
-                errorMessage={(error?.message || saveError?.message) ?? ''}
-                onSave={handleSave}
-            />
-        </>
+        <RecipeForm
+            recipe={data?.recipe}
+            loading={loading || saveLoading}
+            loadErrorMessage={error?.message}
+            saveErrorMessage={saveError?.message}
+            onSave={handleSave}
+        />
     )
 }
 

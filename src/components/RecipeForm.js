@@ -1,19 +1,7 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import PropTypes from 'prop-types';
 
 import {Box, Button, Container, Paper, TextField, Typography, Alert, CircularProgress} from '@mui/material';
-
-function renderErrorMessage(errorMessage) {
-    if (errorMessage.length === 0) {
-        return null;
-    }
-
-    return (
-        <Alert severity="error">
-            {errorMessage}
-        </Alert>
-    )
-}
 
 function renderLoadingMessage(loading) {
     if (loading) {
@@ -27,34 +15,13 @@ function renderLoadingMessage(loading) {
     return null;
 }
 
-function RecipeForm ({recipe, loading, errorMessage, onSave}) {
-    const [formData, setFormData] = useState(recipe);
-
-    useEffect(() => {
-        if (recipe != null) {
-            console.log('setting formData because it is not null.')
-            setFormData(recipe);
-        }
-    }, [recipe]);
-
-    const handleFieldChange = event => {
-        console.log('setting formData because it changed.');
-        setFormData({
-            ...formData,
-            [event.target.name]: event.target.value
-        })
-    }
-
-    const handleSaveButtonClick = () => {
-        onSave(formData);
-    }
-
-    const renderForm = (formData) => {
-        if (formData === null) {
-            return null;
-        }
-
-        return (
+function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick) {
+    const errorMessage = loadErrorMessage?.length > 0 ? loadErrorMessage : saveErrorMessage;
+    return (
+        <>
+            {errorMessage?.length > 0 && <Alert severity="error">
+                {errorMessage}
+            </Alert>}
             <Paper>
                 <Box p={2}>
                     <Box>
@@ -70,7 +37,7 @@ function RecipeForm ({recipe, loading, errorMessage, onSave}) {
                     <Box sx={{display: 'flex', flexDirection: 'row-reverse'}}>
                         <Button
                             variant="contained"
-                            disabled={loading}
+                            disabled={loading || loadErrorMessage?.length > 0}
                             onClick={handleSaveButtonClick}
                         >
                             Save
@@ -78,8 +45,34 @@ function RecipeForm ({recipe, loading, errorMessage, onSave}) {
                     </Box>
                 </Box>
             </Paper>
-        )
+        </>
+    )
+}
+
+function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSave}) {
+    const blankRecipe = {
+        title: ''
     }
+    const [formData, setFormData] = useState(blankRecipe);
+
+    useEffect(() => {
+        if (recipe != null) {
+            console.log('setting formData because it is not null.', recipe);
+            setFormData(recipe);
+        }
+    }, [recipe]);
+
+    const handleFieldChange = useCallback((event) => {
+        console.log('setting formData because it changed.');
+        setFormData({
+            ...formData,
+            [event.target.name]: event.target.value
+        })
+    }, [setFormData, formData]);
+
+    const handleSaveButtonClick = useCallback(() => {
+        onSave(formData);
+    }, [formData]);
 
     return (
         <Container sx={{paddingTop: '72px'}}>
@@ -88,8 +81,7 @@ function RecipeForm ({recipe, loading, errorMessage, onSave}) {
             </Typography>
 
             {renderLoadingMessage(loading)}
-            {renderErrorMessage(errorMessage)}
-            {renderForm(formData)}
+            {renderForm(formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick)}
         </Container>
     )
 }
@@ -99,14 +91,13 @@ RecipeForm.propTypes = {
         title: PropTypes.string
     }),
     loading: PropTypes.bool,
-    errorMessage: PropTypes.string,
+    loadErrorMessage: PropTypes.string,
+    saveErrorMessage: PropTypes.string,
     onSave: PropTypes.func.isRequired,
 }
 
 RecipeForm.defaultValues = {
-    recipe: null,
     loading: false,
-    errorMessage: ''
 }
 
 export default RecipeForm;

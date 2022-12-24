@@ -11,7 +11,7 @@ function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, hand
                 {errorMessage}
             </Alert>}
             <Paper sx={{padding: 2}}>
-                <Stack direction="column" spacing={2}>
+                <Stack direction="column" spacing={2} sx={{width: '50%'}}>
                     <Stack direction="row" justifyContent="flex-start">
                         <TextField
                             id="title"
@@ -19,18 +19,45 @@ function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, hand
                             label="Title"
                             variant="outlined"
                             value={formData.title}
+                            fullWidth={true}
+                            inputProps = {{maxlength:100}}
                             onChange={handleFieldChange}
                         />
                     </Stack>
-                    <Stack direction="row" justifyContent="flex-end">
-                        <Button
-                            variant="contained"
-                            disabled={loading || loadErrorMessage?.length > 0}
-                            onClick={handleSaveButtonClick}
-                        >
-                            Save
-                        </Button>
+                    <Stack direction="row" justifyContent="flex-start">
+                        <TextField
+                            id="description"
+                            name="description"
+                            label="Description"
+                            variant="outlined"
+                            value={formData.description}
+                            inputProps = {{maxlength:500}}
+                            fullWidth={true}
+                            multiline={true}
+                            maxRows={3}
+                            onChange={handleFieldChange}
+                        />
                     </Stack>
+                    <Stack direction="row" justifyContent="flex-start">
+                        <TextField
+                            id="prepTime"
+                            name="prepTime"
+                            label="Prep Time"
+                            variant="outlined"
+                            value={formData.prepTime}
+                            inputProps = {{maxlength:100}}
+                            onChange={handleFieldChange}
+                        />
+                    </Stack>
+                </Stack>
+                <Stack direction="row" justifyContent="flex-end">
+                    <Button
+                        variant="contained"
+                        disabled={loading || loadErrorMessage?.length > 0}
+                        onClick={handleSaveButtonClick}
+                    >
+                        Save
+                    </Button>
                 </Stack>
             </Paper>
         </>
@@ -39,7 +66,9 @@ function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, hand
 
 function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSave}) {
     const blankRecipe = {
-        title: ''
+        title: '',
+        description: '',
+        prepTime: ''
     }
     const [formData, setFormData] = useState(blankRecipe);
 
@@ -75,7 +104,9 @@ function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSav
 
 RecipeForm.propTypes = {
     recipe: PropTypes.shape({
-        title: PropTypes.string
+        title: PropTypes.string,
+        description: PropTypes.string,
+        prepTime: PropTypes.string,
     }),
     loading: PropTypes.bool,
     loadErrorMessage: PropTypes.string,

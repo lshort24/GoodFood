@@ -21,7 +21,12 @@ function EditRecipeController() {
 
     const handleSave = useCallback((recipe) => {
         console.log(`saving recipe with id ${params.id} with title ${recipe.title}`, recipe);
-        update({variables: {id: params.id, title: recipe.title}})
+        update({variables: {
+            id: params.id,
+            title: recipe.title,
+            description: recipe.description,
+            prepTime: recipe.prepTime,
+        }})
             .then((response) => {
                 // noinspection JSUnresolvedVariable
                 console.log('Recipe after save.', response.data.updateRecipe);
@@ -49,16 +54,32 @@ query getRecipeById ($id: ID!) {
   recipe (id: $id) {
     id
     title
+    description
+    prepTime
   }
 }
 `
 
 const UPDATE = gql`
-mutation updateRecipe ($id: ID!, $title: String) {
-  updateRecipe(input: {id:$id, title: $title}) {
-    id
-    title
-  }
+mutation updateRecipe (
+    $id: ID!, 
+    $title: String
+    $description: String
+    $prepTime: String
+) {
+  updateRecipe(
+    input: {
+      id:$id, 
+      title: $title
+      description: $description
+      prepTime: $prepTime
+    }
+  ) {
+      id
+      title
+      description
+      prepTime
+    }
 }
 `
 export default EditRecipeController;

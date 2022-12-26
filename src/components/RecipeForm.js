@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import {Button, Container, Paper, Stack, TextField, Typography, Alert, CircularProgress} from '@mui/material';
 
-function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick) {
+function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick, handleSaveAndCloseButtonClick, handleCloseButtonClick) {
     const errorMessage = loadErrorMessage?.length > 0 ? loadErrorMessage : saveErrorMessage;
     return (
         <>
@@ -54,13 +54,26 @@ function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, hand
                         minRows={10}
                         onChange={handleFieldChange}
                     />
-                    <Stack direction="row" justifyContent="flex-end">
+                    <Stack direction="row" spacing={1} justifyContent="flex-end">
                         <Button
-                            variant="contained"
+                            variant="outlined"
+                            onClick={handleCloseButtonClick}
+                        >
+                            Close
+                        </Button>
+                        <Button
+                            variant="outlined"
                             disabled={loading || loadErrorMessage?.length > 0}
                             onClick={handleSaveButtonClick}
                         >
                             Save
+                        </Button>
+                        <Button
+                            variant="contained"
+                            disabled={loading || loadErrorMessage?.length > 0}
+                            onClick={handleSaveAndCloseButtonClick}
+                        >
+                            Save & Close
                         </Button>
                     </Stack>
                 </Stack>
@@ -69,7 +82,7 @@ function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, hand
     )
 }
 
-function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSave}) {
+function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSave, onClose}) {
     const blankRecipe = {
         title: '',
         description: '',
@@ -92,8 +105,16 @@ function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSav
     }, [setFormData, formData]);
 
     const handleSaveButtonClick = useCallback(() => {
-        onSave(formData);
-    }, [formData]);
+        onSave(formData, false);
+    }, [onSave, formData]);
+
+    const handleSaveAndCloseButtonClick = useCallback(() => {
+        onSave(formData, true);
+    }, [onSave, formData]);
+
+    const handleCloseButtonClick = useCallback(() => {
+        onClose();
+    }, [onClose]);
 
     return (
         <Container sx={{paddingTop: '72px'}} maxWidth="md">
@@ -103,7 +124,7 @@ function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSav
                 </Typography>
                 {loading && <CircularProgress />}
             </Stack>
-            {renderForm(formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick)}
+            {renderForm(formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick, handleSaveAndCloseButtonClick, handleCloseButtonClick)}
         </Container>
     )
 }
@@ -119,6 +140,7 @@ RecipeForm.propTypes = {
     loadErrorMessage: PropTypes.string,
     saveErrorMessage: PropTypes.string,
     onSave: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
 }
 
 RecipeForm.defaultValues = {

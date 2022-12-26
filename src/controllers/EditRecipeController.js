@@ -1,13 +1,13 @@
 import React, {useCallback} from 'react';
 import {useQuery, useMutation, gql} from '@apollo/client';
-import {useParams} from 'react-router-dom';
+import {useParams, useHistory} from 'react-router-dom';
 import {useCookies} from 'react-cookie';
 
 import RecipeForm from '../components/RecipeForm';
 
 function EditRecipeController() {
     const params = useParams();
-
+    const history = useHistory();
     const [cookies] = useCookies(['accessToken']);
 
     const accessToken = cookies['accessToken'];
@@ -19,7 +19,7 @@ function EditRecipeController() {
         },
     });
 
-    const handleSave = useCallback((recipe) => {
+    const handleSave = useCallback((recipe, close) => {
         console.log(`saving recipe with id ${params.id} with title ${recipe.title}`, recipe);
         update({variables: {
             id: params.id,
@@ -31,8 +31,15 @@ function EditRecipeController() {
             .then((response) => {
                 // noinspection JSUnresolvedVariable
                 console.log('Recipe after save.', response.data.updateRecipe);
+                if (close) {
+                    history.goBack();
+                }
             });
-    }, [update, params]);
+    }, [update, params, history]);
+
+    const handleClose = useCallback(() => {
+        history.goBack();
+    }, [history])
 
     const variables = {
         id: params.id
@@ -46,6 +53,7 @@ function EditRecipeController() {
             loadErrorMessage={error?.message}
             saveErrorMessage={saveError?.message}
             onSave={handleSave}
+            onClose={handleClose}
         />
     )
 }

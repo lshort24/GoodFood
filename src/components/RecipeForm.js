@@ -11,53 +11,58 @@ function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, hand
                 {errorMessage}
             </Alert>}
             <Paper sx={{padding: 2}}>
-                <Stack direction="column" spacing={2} sx={{width: '50%'}}>
-                    <Stack direction="row" justifyContent="flex-start">
-                        <TextField
-                            id="title"
-                            name="title"
-                            label="Title"
-                            variant="outlined"
-                            value={formData.title}
-                            fullWidth={true}
-                            inputProps = {{maxlength:100}}
-                            onChange={handleFieldChange}
-                        />
+                <Stack direction="column" spacing={2}>
+                    <TextField
+                        id="title"
+                        name="title"
+                        label="Title"
+                        variant="outlined"
+                        value={formData.title}
+                        inputProps = {{maxLength:100}}
+                        sx={{width: '50%'}}
+                        onChange={handleFieldChange}
+                    />
+                    <TextField
+                        id="description"
+                        name="description"
+                        label="Description"
+                        variant="outlined"
+                        value={formData.description}
+                        inputProps = {{maxLength:500}}
+                        multiline={true}
+                        maxRows={3}
+                        sx={{width: '50%'}}
+                        onChange={handleFieldChange}
+                    />
+                    <TextField
+                        id="prepTime"
+                        name="prepTime"
+                        label="Prep Time"
+                        variant="outlined"
+                        value={formData.prepTime ?? ''}
+                        inputProps = {{maxLength:100}}
+                        sx={{width: '25%'}}
+                        onChange={handleFieldChange}
+                    />
+                    <TextField
+                        id="markdownRecipe"
+                        name="markdownRecipe"
+                        label="Markdown Recipe"
+                        variant="outlined"
+                        value={formData.markdownRecipe}
+                        multiline={true}
+                        minRows={10}
+                        onChange={handleFieldChange}
+                    />
+                    <Stack direction="row" justifyContent="flex-end">
+                        <Button
+                            variant="contained"
+                            disabled={loading || loadErrorMessage?.length > 0}
+                            onClick={handleSaveButtonClick}
+                        >
+                            Save
+                        </Button>
                     </Stack>
-                    <Stack direction="row" justifyContent="flex-start">
-                        <TextField
-                            id="description"
-                            name="description"
-                            label="Description"
-                            variant="outlined"
-                            value={formData.description}
-                            inputProps = {{maxlength:500}}
-                            fullWidth={true}
-                            multiline={true}
-                            maxRows={3}
-                            onChange={handleFieldChange}
-                        />
-                    </Stack>
-                    <Stack direction="row" justifyContent="flex-start">
-                        <TextField
-                            id="prepTime"
-                            name="prepTime"
-                            label="Prep Time"
-                            variant="outlined"
-                            value={formData.prepTime}
-                            inputProps = {{maxlength:100}}
-                            onChange={handleFieldChange}
-                        />
-                    </Stack>
-                </Stack>
-                <Stack direction="row" justifyContent="flex-end">
-                    <Button
-                        variant="contained"
-                        disabled={loading || loadErrorMessage?.length > 0}
-                        onClick={handleSaveButtonClick}
-                    >
-                        Save
-                    </Button>
                 </Stack>
             </Paper>
         </>
@@ -68,7 +73,8 @@ function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSav
     const blankRecipe = {
         title: '',
         description: '',
-        prepTime: ''
+        prepTime: '',
+        markdownRecipe: '',
     }
     const [formData, setFormData] = useState(blankRecipe);
 
@@ -90,7 +96,7 @@ function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSav
     }, [formData]);
 
     return (
-        <Container sx={{paddingTop: '72px'}}>
+        <Container sx={{paddingTop: '72px'}} maxWidth="md">
             <Stack spacing={2} direction="row">
                 <Typography variant="h4">
                     Recipe Form
@@ -107,6 +113,7 @@ RecipeForm.propTypes = {
         title: PropTypes.string,
         description: PropTypes.string,
         prepTime: PropTypes.string,
+        markdownRecipe: PropTypes.string,
     }),
     loading: PropTypes.bool,
     loadErrorMessage: PropTypes.string,

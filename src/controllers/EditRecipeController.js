@@ -26,6 +26,7 @@ function EditRecipeController() {
             title: recipe.title,
             description: recipe.description,
             prepTime: recipe.prepTime,
+            markdownRecipe: recipe.markdownRecipe
         }})
             .then((response) => {
                 // noinspection JSUnresolvedVariable
@@ -56,16 +57,18 @@ query getRecipeById ($id: ID!) {
     title
     description
     prepTime
+    markdownRecipe
   }
 }
 `
 
 const UPDATE = gql`
 mutation updateRecipe (
-    $id: ID!, 
+    $id: ID!
     $title: String
     $description: String
     $prepTime: String
+    $markdownRecipe: String
 ) {
   updateRecipe(
     input: {
@@ -73,12 +76,14 @@ mutation updateRecipe (
       title: $title
       description: $description
       prepTime: $prepTime
+      markdownRecipe: $markdownRecipe
     }
   ) {
       id
       title
       description
       prepTime
+      markdownRecipe
     }
 }
 `

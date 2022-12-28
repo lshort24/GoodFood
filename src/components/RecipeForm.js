@@ -2,109 +2,13 @@ import React, {useState, useEffect, useCallback} from 'react';
 import PropTypes from 'prop-types';
 import {useCookies} from 'react-cookie';
 
-import {Button, Container, Grid, Paper, Stack, TextField, Typography, Alert, CircularProgress} from '@mui/material';
+import {Button, Grid, Paper, Stack, TextField, Alert} from '@mui/material';
 import {PhotoCamera} from '@mui/icons-material';
 
 import axios from 'axios';
 axios.defaults.withCredentials = true;
 
-function renderForm (formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick, handleSaveAndCloseButtonClick, handleCloseButtonClick, handleUploadPhoto) {
-    const errorMessage = loadErrorMessage?.length > 0 ? loadErrorMessage : saveErrorMessage;
-    const photoFileName = formData?.photo?.length ? formData.photo : 'recipe_photo_placeholder.jpeg';
-    return (
-        <>
-            {errorMessage?.length > 0 && <Alert severity="error">
-                {errorMessage}
-            </Alert>}
-            <Paper sx={{padding: 2}}>
-                <Stack direction="column" spacing={2}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={9}>
-                            <Stack direction="column" spacing={2}>
-                                <TextField
-                                    id="title"
-                                    name="title"
-                                    label="Title"
-                                    variant="outlined"
-                                    value={formData.title}
-                                    inputProps = {{maxLength:100}}
-                                    onChange={handleFieldChange}
-                                />
-                                <TextField
-                                    id="description"
-                                    name="description"
-                                    label="Description"
-                                    variant="outlined"
-                                    value={formData.description}
-                                    inputProps = {{maxLength:500}}
-                                    multiline={true}
-                                    maxRows={3}
-                                    onChange={handleFieldChange}
-                                />
-                                <TextField
-                                    id="prepTime"
-                                    name="prepTime"
-                                    label="Prep Time"
-                                    variant="outlined"
-                                    value={formData.prepTime ?? ''}
-                                    inputProps = {{maxLength:100}}
-                                    onChange={handleFieldChange}
-                                />
-                            </Stack>
-                        </Grid>
-                        <Grid item xs={12} md={3}>
-                            <Stack direction="column" spacing={1} alignItems="center">
-                                <img
-                                    alt={`Photo of ${formData.title}`}
-                                    src={`https://shortsrecipes.com/photos/${photoFileName}`}
-                                    style={{maxWidth: "144px", maxHeight: "144px"}}
-                                />
-                                <Button variant="contained" component="label" startIcon={<PhotoCamera/>}>
-                                    Upload Photo
-                                    <input hidden accept="image/*" multiple type="file" onChange={handleUploadPhoto}/>
-                                </Button>
-                            </Stack>
-                        </Grid>
-                    </Grid>
-                    <TextField
-                        id="markdownRecipe"
-                        name="markdownRecipe"
-                        label="Markdown Recipe"
-                        variant="outlined"
-                        value={formData.markdownRecipe}
-                        multiline={true}
-                        minRows={10}
-                        onChange={handleFieldChange}
-                    />
-                    <Stack direction="row" spacing={1} justifyContent="flex-end">
-                        <Button
-                            variant="outlined"
-                            onClick={handleCloseButtonClick}
-                        >
-                            Close
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            disabled={loading || loadErrorMessage?.length > 0}
-                            onClick={handleSaveButtonClick}
-                        >
-                            Save
-                        </Button>
-                        <Button
-                            variant="contained"
-                            disabled={loading || loadErrorMessage?.length > 0}
-                            onClick={handleSaveAndCloseButtonClick}
-                        >
-                            Save & Close
-                        </Button>
-                    </Stack>
-                </Stack>
-            </Paper>
-        </>
-    )
-}
-
-function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSave, onClose}) {
+function RecipeForm ({recipe, onSave, onClose, disableSave}) {
     const blankRecipe = {
         title: '',
         description: '',
@@ -170,8 +74,11 @@ function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSav
                 setValidationError(response.data.error.message);
             }
             else {
-                updateField('photo', response.data.photoFileName);
-                setPhotoUploadWarning("Image won't be saved until the recipe is saved.");
+                const {photoFileName} = response.data;
+                if (photoFileName) {
+                    updateField('photo', photoFileName);
+                    setPhotoUploadWarning("Image won't be saved until the recipe is saved.");
+                }
             }
         });
     }, [setValidationError, updateField, setPhotoUploadWarning, cookies]);
@@ -185,18 +92,96 @@ function RecipeForm ({recipe, loading, loadErrorMessage, saveErrorMessage, onSav
     }, [setPhotoUploadWarning]);
 
     console.log('Render recipe form', formData);
+    const photoFileName = formData?.photo?.length ? formData.photo : 'recipe_photo_placeholder.jpeg';
     return (
-        <Container sx={{paddingTop: '72px'}} maxWidth="md">
-            <Stack spacing={2} direction="row">
-                <Typography variant="h4">
-                    Recipe Form
-                </Typography>
-                {loading && <CircularProgress />}
-            </Stack>
+        <>
             {validationError && <Alert severity="error" onClose={handleCloseValidationError}>{validationError}</Alert>}
             {photoUploadWarning && <Alert severity="warning" onClose={handlePhotoUploadWarning}>{photoUploadWarning}</Alert>}
-            {renderForm(formData, loading, loadErrorMessage, saveErrorMessage, handleFieldChange, handleSaveButtonClick, handleSaveAndCloseButtonClick, handleCloseButtonClick, handleUploadPhoto)}
-        </Container>
+            <Paper sx={{padding: 2}}>
+                <Stack direction="column" spacing={2}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={9}>
+                            <Stack direction="column" spacing={2}>
+                                <TextField
+                                    id="title"
+                                    name="title"
+                                    label="Title"
+                                    variant="outlined"
+                                    value={formData.title}
+                                    inputProps = {{maxLength:100}}
+                                    onChange={handleFieldChange}
+                                />
+                                <TextField
+                                    id="description"
+                                    name="description"
+                                    label="Description"
+                                    variant="outlined"
+                                    value={formData.description}
+                                    inputProps = {{maxLength:500}}
+                                    multiline={true}
+                                    maxRows={3}
+                                    onChange={handleFieldChange}
+                                />
+                                <TextField
+                                    id="prepTime"
+                                    name="prepTime"
+                                    label="Prep Time"
+                                    variant="outlined"
+                                    value={formData.prepTime ?? ''}
+                                    inputProps = {{maxLength:100}}
+                                    onChange={handleFieldChange}
+                                />
+                            </Stack>
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                            <Stack direction="column" spacing={1} alignItems="center">
+                                <img
+                                    alt={`Photo of ${formData.title}`}
+                                    src={`https://shortsrecipes.com/photos/${photoFileName}`}
+                                    style={{maxWidth: "144px", maxHeight: "144px"}}
+                                />
+                                <Button variant="contained" component="label" startIcon={<PhotoCamera/>} disabled={disableSave}>
+                                    Upload Photo
+                                    <input hidden accept="image/*" multiple type="file" onChange={handleUploadPhoto}/>
+                                </Button>
+                            </Stack>
+                        </Grid>
+                    </Grid>
+                    <TextField
+                        id="markdownRecipe"
+                        name="markdownRecipe"
+                        label="Markdown Recipe"
+                        variant="outlined"
+                        value={formData.markdownRecipe}
+                        multiline={true}
+                        minRows={10}
+                        onChange={handleFieldChange}
+                    />
+                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+                        <Button
+                            variant="outlined"
+                            onClick={handleCloseButtonClick}
+                        >
+                            Close
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            disabled={disableSave}
+                            onClick={handleSaveButtonClick}
+                        >
+                            Save
+                        </Button>
+                        <Button
+                            variant="contained"
+                            disabled={disableSave}
+                            onClick={handleSaveAndCloseButtonClick}
+                        >
+                            Save & Close
+                        </Button>
+                    </Stack>
+                </Stack>
+            </Paper>
+        </>
     )
 }
 
@@ -208,15 +193,13 @@ RecipeForm.propTypes = {
         photo: PropTypes.string,
         markdownRecipe: PropTypes.string,
     }),
-    loading: PropTypes.bool,
-    loadErrorMessage: PropTypes.string,
-    saveErrorMessage: PropTypes.string,
+    disableSave: PropTypes.bool,
     onSave: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
 }
 
 RecipeForm.defaultValues = {
-    loading: false,
+    disableSave: false,
 }
 
 export default RecipeForm;

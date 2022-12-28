@@ -4,6 +4,7 @@ import {useParams, useHistory} from 'react-router-dom';
 import {useCookies} from 'react-cookie';
 
 import RecipeForm from '../components/RecipeForm';
+import {Alert, CircularProgress, Container, Stack, Typography} from "@mui/material";
 
 function EditRecipeController() {
     const params = useParams();
@@ -47,15 +48,24 @@ function EditRecipeController() {
     }
 
     const {loading, error, data} = useQuery(GET_RECIPE_BY_ID, {variables})
+    const errorMessage = error?.message?.length > 0 ? error.message : saveError?.message;
+    const disableSave = loading || error?.message?.length > 0;
     return (
-        <RecipeForm
-            recipe={data?.recipe}
-            loading={loading || saveLoading}
-            loadErrorMessage={error?.message}
-            saveErrorMessage={saveError?.message}
-            onSave={handleSave}
-            onClose={handleClose}
-        />
+        <Container sx={{paddingTop: '72px'}} maxWidth="md">
+            <Stack spacing={2} direction="row">
+                <Typography variant="h4">
+                    Recipe Form
+                </Typography>
+                {(loading || saveLoading) && <CircularProgress />}
+            </Stack>
+            {errorMessage?.length > 0 && <Alert severity="error">{errorMessage}</Alert>}
+            <RecipeForm
+                recipe={data?.recipe}
+                onSave={handleSave}
+                onClose={handleClose}
+                disableSave={disableSave}
+            />
+        </Container>
     )
 }
 

@@ -26,6 +26,7 @@ function EditRecipeController() {
             title: recipe.title,
             description: recipe.description,
             prepTime: recipe.prepTime,
+            photo: recipe.photo,
             markdownRecipe: recipe.markdownRecipe
         }})
             .then((response) => {
@@ -65,6 +66,7 @@ query getRecipeById ($id: ID!) {
     title
     description
     prepTime
+    photo
     markdownRecipe
   }
 }
@@ -76,6 +78,7 @@ mutation updateRecipe (
     $title: String
     $description: String
     $prepTime: String
+    $photo: String
     $markdownRecipe: String
 ) {
   updateRecipe(
@@ -84,6 +87,7 @@ mutation updateRecipe (
       title: $title
       description: $description
       prepTime: $prepTime
+      photo: $photo
       markdownRecipe: $markdownRecipe
     }
   ) {
@@ -91,6 +95,7 @@ mutation updateRecipe (
       title
       description
       prepTime
+      photo
       markdownRecipe
     }
 }

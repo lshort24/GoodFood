@@ -2,21 +2,23 @@ import React, {useState, useEffect, useCallback} from 'react';
 import PropTypes from 'prop-types';
 import {useCookies} from 'react-cookie';
 
-import {Button, Grid, Paper, Stack, TextField, Alert} from '@mui/material';
+import {Alert, Button, Chip, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Stack, TextField} from '@mui/material';
 import {PhotoCamera} from '@mui/icons-material';
 
 import axios from 'axios';
 axios.defaults.withCredentials = true;
 
-function RecipeForm ({recipe, onSave, onClose, disableSave}) {
+function RecipeForm ({recipe, allTags, onSave, onClose, disableSave}) {
     const blankRecipe = {
         title: '',
         description: '',
         prepTime: '',
         photo: '',
         markdownRecipe: '',
+        tags: []
     }
     const [formData, setFormData] = useState(blankRecipe);
+    const [selectedTag, setSelectedTag] = useState('');
     const [validationError, setValidationError] = useState('');
     const [photoUploadWarning, setPhotoUploadWarning] = useState('');
     const [cookies] = useCookies(['accessToken']);
@@ -28,7 +30,6 @@ function RecipeForm ({recipe, onSave, onClose, disableSave}) {
     }, [recipe]);
 
     const updateField = useCallback((name, value) => {
-        console.log("update field", formData);
         setFormData({
             ...formData,
             [name]: value
@@ -91,8 +92,56 @@ function RecipeForm ({recipe, onSave, onClose, disableSave}) {
         setPhotoUploadWarning('');
     }, [setPhotoUploadWarning]);
 
-    console.log('Render recipe form', formData);
+    const handleDeleteTag = useCallback((tag) => {
+        setFormData({
+            ...formData,
+            tags: formData.tags.filter((tagItem) => {
+                return tagItem.id !== tag.id;
+            })
+        });
+    }, [formData, setFormData]);
+
+    const handleAddTag = useCallback(() => {
+        if (selectedTag === '') {
+            return;
+        }
+
+        const hasTag = formData.tags.find((tag) => {
+            return tag.id === selectedTag.id
+        });
+
+        if (hasTag) {
+            setSelectedTag('');
+            return;
+        }
+
+        setFormData({
+            ...formData,
+            tags: [...formData.tags, selectedTag]
+        });
+        setSelectedTag('');
+    }, [formData, setFormData, selectedTag,setSelectedTag]);
+
+    const handleSelectTag = useCallback((event) => {
+        setSelectedTag(event.target.value)
+    }, [setSelectedTag]);
+
     const photoFileName = formData?.photo?.length ? formData.photo : 'recipe_photo_placeholder.jpeg';
+
+    const recipeChips = formData.tags.map((tag) => {
+        const {id, name} = tag;
+        return <Chip
+            key={id}
+            label={name}
+            onDelete={() => handleDeleteTag(tag)}
+        />
+    });
+
+    const chipMenu = allTags ? allTags.map((tag) => {
+        return <MenuItem key={tag.id} value={tag}>{tag.name}</MenuItem>;
+    }) : null;
+
+    // noinspection JSValidateTypes
     return (
         <>
             {validationError && <Alert severity="error" onClose={handleCloseValidationError}>{validationError}</Alert>}
@@ -131,6 +180,26 @@ function RecipeForm ({recipe, onSave, onClose, disableSave}) {
                                     inputProps = {{maxLength:100}}
                                     onChange={handleFieldChange}
                                 />
+                                <Stack direction="row" spacing={1} alignItems="center">
+                                    <span>Tags:</span>
+                                    {recipeChips}
+                                </Stack>
+                                <Stack direction="row" spacing={2} alignItems="center">
+                                    <FormControl>
+                                        <InputLabel id="add-tag-select-label">Choose Tag</InputLabel>
+                                        <Select
+                                            labelId="add-tag-select-label"
+                                            label="Choose Tag"
+                                            value={selectedTag}
+                                            onChange={handleSelectTag}
+                                            autoWidth
+                                            sx={{minWidth: 116}}
+                                        >
+                                            {chipMenu}
+                                        </Select>
+                                    </FormControl>
+                                    <Button variant="contained" onClick={handleAddTag}>Add</Button>
+                                </Stack>
                             </Stack>
                         </Grid>
                         <Grid item xs={12} md={3}>
@@ -192,13 +261,22 @@ RecipeForm.propTypes = {
         prepTime: PropTypes.string,
         photo: PropTypes.string,
         markdownRecipe: PropTypes.string,
+        tags: PropTypes.arrayOf(PropTypes.shape({
+            id: PropTypes.number,
+            name: PropTypes.string
+        }))
     }),
+    allTags: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.number,
+        name: PropTypes.string
+    })),
     disableSave: PropTypes.bool,
     onSave: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
 }
 
 RecipeForm.defaultValues = {
+    allTags: [],
     disableSave: false,
 }
 

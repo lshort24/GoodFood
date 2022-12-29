@@ -61,6 +61,7 @@ function EditRecipeController() {
             {errorMessage?.length > 0 && <Alert severity="error">{errorMessage}</Alert>}
             <RecipeForm
                 recipe={data?.recipe}
+                allTags={data?.tags}
                 onSave={handleSave}
                 onClose={handleClose}
                 disableSave={disableSave}
@@ -77,8 +78,16 @@ query getRecipeById ($id: ID!) {
     description
     prepTime
     photo
+    tags {
+      id
+      name
+    }
     markdownRecipe
   }
+  tags {
+    id
+    name
+  }  
 }
 `
 

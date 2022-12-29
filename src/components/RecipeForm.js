@@ -2,7 +2,7 @@ import React, {useState, useEffect, useCallback} from 'react';
 import PropTypes from 'prop-types';
 import {useCookies} from 'react-cookie';
 
-import {Alert, Button, Chip, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Stack, TextField} from '@mui/material';
+import {Alert, Button, Checkbox, Chip, FormControl, Grid, InputLabel, ListItemText, MenuItem, Paper, Select, Stack, TextField} from '@mui/material';
 import {PhotoCamera} from '@mui/icons-material';
 
 import axios from 'axios';
@@ -18,7 +18,7 @@ function RecipeForm ({recipe, allTags, onSave, onClose, disableSave}) {
         tags: []
     }
     const [formData, setFormData] = useState(blankRecipe);
-    const [selectedTag, setSelectedTag] = useState('');
+    const [showSelectTags, setShowSelectTags] = useState(false);
     const [validationError, setValidationError] = useState('');
     const [photoUploadWarning, setPhotoUploadWarning] = useState('');
     const [cookies] = useCookies(['accessToken']);
@@ -92,39 +92,34 @@ function RecipeForm ({recipe, allTags, onSave, onClose, disableSave}) {
         setPhotoUploadWarning('');
     }, [setPhotoUploadWarning]);
 
-    const handleDeleteTag = useCallback((tag) => {
-        setFormData({
-            ...formData,
-            tags: formData.tags.filter((tagItem) => {
-                return tagItem.id !== tag.id;
+    const handleCheckboxChange = useCallback((event, tag) => {
+        const {
+            target: {
+                checked
+            }
+        } = event;
+
+        if (checked) {
+            setFormData({
+                ...formData,
+                tags: [...formData.tags, tag]
             })
-        });
+        }
+        else {
+            setFormData({
+                ...formData,
+                tags: formData.tags.filter((value) => value.id !== tag.id)
+            })
+        }
     }, [formData, setFormData]);
 
-    const handleAddTag = useCallback(() => {
-        if (selectedTag === '') {
-            return;
-        }
+    const handleEditTags = useCallback(() => {
+        setShowSelectTags(true)
+    }, [setShowSelectTags]);
 
-        const hasTag = formData.tags.find((tag) => {
-            return tag.id === selectedTag.id
-        });
-
-        if (hasTag) {
-            setSelectedTag('');
-            return;
-        }
-
-        setFormData({
-            ...formData,
-            tags: [...formData.tags, selectedTag]
-        });
-        setSelectedTag('');
-    }, [formData, setFormData, selectedTag,setSelectedTag]);
-
-    const handleSelectTag = useCallback((event) => {
-        setSelectedTag(event.target.value)
-    }, [setSelectedTag]);
+    const handleSelectTagClose = useCallback(() => {
+        setShowSelectTags(false);
+    }, [setShowSelectTags]);
 
     const photoFileName = formData?.photo?.length ? formData.photo : 'recipe_photo_placeholder.jpeg';
 
@@ -133,12 +128,24 @@ function RecipeForm ({recipe, allTags, onSave, onClose, disableSave}) {
         return <Chip
             key={id}
             label={name}
-            onDelete={() => handleDeleteTag(tag)}
         />
     });
 
-    const chipMenu = allTags ? allTags.map((tag) => {
-        return <MenuItem key={tag.id} value={tag}>{tag.name}</MenuItem>;
+    const checkboxMenu = allTags ? allTags.map((tag) => {
+        const checked = !!formData.tags.find((selectedTag) => {
+            return selectedTag.id === tag.id
+        });
+        const checkboxId = `tag_checkbox_${tag.id}`;
+        return (
+            <MenuItem key={tag.id} value={tag}>
+                <Checkbox
+                    id={checkboxId}
+                    checked={checked}
+                    onChange={(event) => handleCheckboxChange(event, tag)}
+                />
+                <label htmlFor={checkboxId}><ListItemText primary={tag.name} /></label>
+            </MenuItem>
+        )
     }) : null;
 
     // noinspection JSValidateTypes
@@ -185,20 +192,28 @@ function RecipeForm ({recipe, allTags, onSave, onClose, disableSave}) {
                                     {recipeChips}
                                 </Stack>
                                 <Stack direction="row" spacing={2} alignItems="center">
-                                    <FormControl>
-                                        <InputLabel id="add-tag-select-label">Choose Tag</InputLabel>
+                                    <Button
+                                        variant="contained"
+                                        onClick={handleEditTags}
+                                    >
+                                        Edit Tags
+                                    </Button>
+                                    {showSelectTags && <FormControl>
+                                        <InputLabel id="add-tag-select-label">Edit Tags</InputLabel>
                                         <Select
+                                            multiple={true}
+                                            open={showSelectTags}
                                             labelId="add-tag-select-label"
-                                            label="Choose Tag"
-                                            value={selectedTag}
-                                            onChange={handleSelectTag}
+                                            label="Edit Tags"
+                                            value={formData.tags}
+                                            renderValue={() => ""}
+                                            onClose={handleSelectTagClose}
                                             autoWidth
                                             sx={{minWidth: 116}}
                                         >
-                                            {chipMenu}
+                                            {checkboxMenu}
                                         </Select>
-                                    </FormControl>
-                                    <Button variant="contained" onClick={handleAddTag}>Add</Button>
+                                    </FormControl>}
                                 </Stack>
                             </Stack>
                         </Grid>

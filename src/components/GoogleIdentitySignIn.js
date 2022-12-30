@@ -12,9 +12,16 @@ import {updateAuth} from "../redux/actions/authActions";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
+import {deleteCookie, getCookieValue} from '../util';
+
+
 function GoogleIdentitySignIn ({isSignedIn, profileName, updateAuth,}) {
+    const cookieValue = getCookieValue('accessToken');
+    console.log('access token value', cookieValue);
+
     const handleGoogleSignOutClick = () => {
         googleLogout();
+        deleteCookie('accessToken', '/', 'shortsrecipes.com');
         updateAuth(false, '');
     }
 

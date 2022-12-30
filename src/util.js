@@ -53,4 +53,40 @@ function validateHtml(html) {
    return true;
 }
 
-export {formatBreaks, formatSteps, validateHtml}
+function hasCookie(name) {
+   return document.cookie.split(';').some(c => {
+      return c.trim().startsWith(name + '=');
+   });
+}
+
+function getCookie(name) {
+   return document.cookie.split(';').find(c => {
+      return c.trim().startsWith(name + '=');
+   });
+}
+
+function getCookieValue(name) {
+   if (hasCookie(name)) {
+      return getCookie(name).split('=')[1];
+   }
+   return null;
+}
+
+function deleteCookie( name, path, domain ) {
+   if( hasCookie( name ) ) {
+      document.cookie = name + "=" +
+          ((path) ? ";path="+path:"")+
+          ((domain)?";domain="+domain:"") +
+          ";expires=Thu, 01 Jan 1970 00:00:01 GMT";
+   }
+}
+
+export {
+   formatBreaks,
+   formatSteps,
+   validateHtml,
+   hasCookie,
+   getCookie,
+   getCookieValue,
+   deleteCookie
+}

@@ -3,6 +3,7 @@ import {getCookieValue} from '../../util';
 
 let isSignedIn = false;
 let profileName = '';
+let role = 'guest';
 
 const accessToken = getCookieValue('accessToken');
 if (accessToken) {
@@ -15,6 +16,7 @@ if (accessToken) {
       if (payload?.userId && payload?.profileName) {
          isSignedIn = true;
          profileName = payload.profileName;
+         role = payload.role
       }
    }
 }
@@ -22,7 +24,8 @@ if (accessToken) {
 const INITIAL_STATE = {
    isSignedIn,
    profileName,
-   userId: null
+   role,
+   userId: null,
 };
 
 const authReducer = (state = INITIAL_STATE, action) => {
@@ -31,11 +34,15 @@ const authReducer = (state = INITIAL_STATE, action) => {
          return {
             ...state,
             isSignedIn: action.payload.isSignedIn,
-            profileName: action.payload.profileName
+            profileName: action.payload.profileName,
+            role: action.payload.role,
          }
       default:
          return state;
    }
 };
 
+const selectIsAdmin = (state) => state.role === 'admin';
+
 export default authReducer;
+export {selectIsAdmin}

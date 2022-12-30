@@ -5,14 +5,16 @@ const UPDATE_AUTH = 'update_auth';
  *
  * @param {boolean} isSignedIn
  * @param {string} profileName
+ * @param {string} role
  * @returns {{payload: {signedIn}, type: string}}
  */
-const updateAuth = (isSignedIn, profileName = '') => {
+const updateAuth = (isSignedIn, profileName = '', role = 'guest') => {
    return {
       type: UPDATE_AUTH,
       payload: {
          isSignedIn,
          profileName,
+         role,
       }
    }
 }

@@ -9,6 +9,9 @@ import * as DOMPurify from 'dompurify';
 import { Chip } from '@material-ui/core';
 import { Link, useParams } from 'react-router-dom';
 
+// Redux
+import {selectIsAdmin} from '../redux/reducers/authReducer';
+
 // Style
 import './RecipeDetail.css';
 import Button from "@mui/material/Button";
@@ -67,7 +70,7 @@ const RecipeDetail2 = ({
     directions,
     markdownRecipe,
     tags,
-    isSignedIn
+    isAdmin
 }) => {
     const params = useParams();
 
@@ -132,7 +135,7 @@ const RecipeDetail2 = ({
                         {title}
                     </div>
                     {
-                        isSignedIn && <div>
+                        isAdmin && <div>
                             <Link to={`/edit/${params.number}`}>
                                 <Button variant="contained" startIcon={<Edit />}>
                                     Edit Recipe
@@ -185,7 +188,7 @@ RecipeDetail2.defaultProps = {
 
 const mapStateToProps = state => ({
     ...state.recipes.recipe,
-    isSignedIn: state.auth.isSignedIn
+    isAdmin: selectIsAdmin(state.auth),
 })
 
 export default connect(mapStateToProps)(withStyles(style)(RecipeDetail2));

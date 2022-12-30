@@ -22,7 +22,7 @@ function GoogleIdentitySignIn ({isSignedIn, profileName, updateAuth,}) {
     const handleGoogleSignOutClick = () => {
         googleLogout();
         deleteCookie('accessToken', '/', 'shortsrecipes.com');
-        updateAuth(false, '');
+        updateAuth(false, '', 'guest');
     }
 
     if (isSignedIn) {
@@ -48,22 +48,23 @@ function GoogleIdentitySignIn ({isSignedIn, profileName, updateAuth,}) {
         <GoogleLogin
             onSuccess={credentialResponse => {
                 shortAPI.post('/verifyJWToken.php', {credential: credentialResponse.credential}).then(response => {
-                    if (response.data.authenticated) {
-                        updateAuth(true, response.data.profileName);
+                    const {authenticated, role, profileName, failReason} = response.data;
+                    if (authenticated) {
+                        updateAuth(true, profileName, role);
                     }
                     else {
                         // TODO Create a redux action to display a nicer message box.
-                        alert(`${defaultMessage} ${response.data.failReason}`);
+                        alert(`${defaultMessage} ${failReason}`);
                     }
                 }).catch = (error) => {
                     console.log('There was an error with Google login', error);
                     alert(defaultMessage);
-                    updateAuth(false, '');
+                    updateAuth(false, '', 'guest');
                 }
             }}
             onError={() => {
                 alert(defaultMessage);
-                updateAuth(false, '');
+                updateAuth(false, '', 'guest');
             }}
             shape='pill'
             theme='filled_blue'

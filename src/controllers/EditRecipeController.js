@@ -29,7 +29,7 @@ function EditRecipeController() {
             prepTime: recipe.prepTime,
             photo: recipe.photo,
             markdownRecipe: recipe.markdownRecipe,
-            tags: recipe.tags.map((tag) => tag.id)
+            tagIds: recipe.tags.map((tag) => tag.id)
         }})
             .then((response) => {
                 // noinspection JSUnresolvedVariable
@@ -100,7 +100,7 @@ mutation updateRecipe (
     $prepTime: String
     $photo: String
     $markdownRecipe: String
-    $tags: [ID]
+    $tagIds: [ID]
 ) {
   updateRecipe(
     input: {
@@ -110,7 +110,7 @@ mutation updateRecipe (
       prepTime: $prepTime
       photo: $photo
       markdownRecipe: $markdownRecipe
-      tags: $tags
+      tagIds: $tagIds
     }
   ) {
       id

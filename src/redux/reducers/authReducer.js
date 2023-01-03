@@ -7,12 +7,9 @@ let role = 'guest';
 
 const accessToken = getCookieValue('accessToken');
 if (accessToken) {
-   console.log('access token', accessToken);
    const parts = accessToken.split('.');
-   console.log('parts', parts);
    if (parts.length === 3) {
       const payload = JSON.parse(atob(parts[1]));
-      console.log('access token payload', payload);
       if (payload?.userId && payload?.profileName) {
          isSignedIn = true;
          profileName = payload.profileName;

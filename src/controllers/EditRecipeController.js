@@ -37,7 +37,16 @@ function EditRecipeController() {
                 if (close) {
                     history.goBack();
                 }
-            });
+            })
+            .catch((error) => {
+                const {graphQLErrors} = error;
+                if (graphQLErrors?.length > 0) {
+                    const {extensions} = graphQLErrors[0];
+                    if (extensions?.category === 'auth_102') {
+                        console.log("Access token has expired.");
+                    }
+                }
+            })
     }, [update, params, history]);
 
     const handleClose = useCallback(() => {

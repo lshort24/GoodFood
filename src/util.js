@@ -81,6 +81,12 @@ function deleteCookie( name, path, domain ) {
    }
 }
 
+function setCookie(name, value, path, domain) {
+   document.cookie = name + "=" + value +
+       ((path) ? ";path="+path : "") +
+       ((domain)?";domain="+domain : "");
+}
+
 export {
    formatBreaks,
    formatSteps,
@@ -88,5 +94,6 @@ export {
    hasCookie,
    getCookie,
    getCookieValue,
-   deleteCookie
+   deleteCookie,
+   setCookie,
 }
